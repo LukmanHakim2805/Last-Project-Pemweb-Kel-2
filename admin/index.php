@@ -1,21 +1,29 @@
 <?php
 require 'conn.php';
-    if($_SERVER['REQUEST_METHOD'] === 'POST'){
-        $username = $_POST['username'];
-        $password = $_POST['password'];
+session_start();
 
-        $cekdb = mysqli_query($conn, "SELECT * FROM admin WHERE username = '$username'");
-        if( mysqli_num_rows($cekdb) > 0 ){
-            $row = mysqli_fetch_assoc($cekdb);
+  if (isset($_SESSION["login"])) {
+    header('location:dashboard.php');
+    exit;
+}
     
-            if( $password == $row["password"] ){
-                header('location:dashboard.php');
-            }else{
-                echo "Username atau Password salah";
-            }
-        }else{
+    if($_SERVER['REQUEST_METHOD'] === 'POST'){
+      $username = $_POST['username'];
+      $password = $_POST['password'];
+
+      $cekdb = mysqli_query($conn, "SELECT * FROM admin WHERE username = '$username'");
+      if( mysqli_num_rows($cekdb) > 0 ){
+          $row = mysqli_fetch_assoc($cekdb);
+    
+          if( $password == $row["password"] ){
+            $_SESSION["login"] = true;
+            header('location:dashboard.php');
+          }else{
             echo "Username atau Password salah";
-        }
+          }
+      }else{
+          echo "Username atau Password salah";
+      }
     }
 ?>
 

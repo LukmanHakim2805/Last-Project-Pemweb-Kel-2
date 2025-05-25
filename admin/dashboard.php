@@ -1,134 +1,161 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Panel Admin - Manajemen Toko</title>
+  <title>Dashboard Admin - Toko Dasha</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #f8f9fa;
+      background-color: #f1f3f5;
+      font-family: 'Segoe UI', sans-serif;
     }
 
-    .sidebar-custom {
-      height: 100vh;
-      background: linear-gradient(135deg, #222831, #393e46);
-      color: #ffffff;
+    .sidebar {
+      position:fixed;
+      min-height: 100%;
+      background-color: #212529;
+      padding: 25px 15px;
     }
 
-    .sidebar-custom h4 {
-      padding: 20px;
-      border-bottom: 1px solid #444;
+    .sidebar .nav-link {
+      color: #adb5bd;
+      border-radius: 5px;
     }
 
-    .sidebar-custom a {
-      display: block;
+    .sidebar .nav-link.active,
+    .sidebar .nav-link:hover {
+      background-color: #343a40;
       color: #fff;
-      padding: 12px 20px;
-      text-decoration: none;
-      transition: background 0.3s;
     }
 
-    .sidebar-custom a:hover {
-      background-color: #00adb5;
+    .card-highlight {
+      border-left: 4px solid #ffa500;
+      background: #fff;
+      box-shadow: 0 10px 5px rgba(0, 0, 0, 0.1);
     }
 
-    .content-area {
-      padding: 30px;
-    }
-
-    .card-custom {
-      border: none;
-      border-left: 5px solid #00adb5;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .card-title {
+    .section-header {
+      font-size: 1.25rem;
       font-weight: 600;
+      margin-bottom: 1rem;
     }
 
-    .navbar-light {
-      background-color: #ffffff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    .welcome-banner {
+      background: linear-gradient(90deg, #ffa500, rgb(212, 142, 0));
+      color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
     }
   </style>
 </head>
+
 <body>
 
   <div class="container-fluid">
     <div class="row">
-      <!-- Sidebar -->
-      <div class="col-md-2 d-none d-md-block sidebar-custom">
-        <h4 class="text-center">ADMIN TOKO</h4>
-        <a href="#">Dashboard</a>
-        <a href="#">Transaksi</a>
-        <a href="#">Stok Barang</a>
-        <a href="#"> Restock</a>
-        <a href="#">Keluar</a>
+      <!-- sidebar -->
+      <div class="col-md-2 sidebar">
+        <h4 class="text-white mb-4">TokoKu</h4>
+        <nav class="nav flex-column">
+          <a href="#" class="nav-link active">Dashboard</a>
+          <a href="#" class="nav-link">Transaksi</a>
+          <a href="#" class="nav-link">Manajemen Stok</a>
+          <a href="laporan.php" class="nav-link">Laporan Penjualan</a>
+          <a href="logout.php" class="nav-link text-danger mt-auto">Keluar</a>
+        </nav>
       </div>
 
-      <!-- Main Content -->
-      <div class="col-md-10 ms-sm-auto col-lg-10">
-        <nav class="navbar navbar-light px-4">
-          <span class="navbar-brand mb-0 h4">Dashboard Utama</span>
-          <span class="text-muted">Selamat datang kembali, Admin!</span>
-        </nav>
+      <!-- konten utama -->
+      <div class="col-md-10 offset-md-2 p-4">
 
-        <div class="content-area">
-          <div class="row">
-            <!-- Kartu Transaksi -->
-            <div class="col-md-4 mb-4">
-              <div class="card card-custom">
-                <div class="card-body">
-                  <h5 class="card-title">Total Transaksi Hari Ini</h5>
-                  <p class="card-text fs-4 fw-bold text-success">Rp 2.500.000</p>
-                  <p class="text-muted">35 transaksi berhasil</p>
-                </div>
-              </div>
-            </div>
+        <!-- welcome banner -->
+        <div class="welcome-banner mb-4">
+          <h4 class="mb-1">Selamat datang kembali, Admin!</h4>
+          <p class="mb-0">Kelola toko kelontong Anda dengan mudah dan cepat.</p>
+        </div>
 
-            <!-- Kartu Stok -->
-            <div class="col-md-4 mb-4">
-              <div class="card card-custom">
-                <div class="card-body">
-                  <h5 class="card-title">Jumlah Produk di Stok</h5>
-                  <p class="card-text fs-4 fw-bold text-primary">128 item</p>
-                  <p class="text-muted">Terupdate secara otomatis</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Kartu Restock -->
-            <div class="col-md-4 mb-4">
-              <div class="card card-custom">
-                <div class="card-body">
-                  <h5 class="card-title"> Restock</h5>
-                  <p class="card-text fs-4 fw-bold text-warning">Sabun Mandi, Telur</p>
-                  <p class="text-muted">Perlu ditindaklanjuti</p>
+        <!-- kartu info umum -->
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="card card-highlight p-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <div class="text-muted">Total Transaksi Hari Ini</div>
+                  <div class="h5 fw-bold text-success">38</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Area untuk grafik atau tabel -->
-          <div class="row mt-5">
-            <div class="col-md-12">
-              <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                  <strong>Riwayat Transaksi Terbaru</strong>
+          <div class="col-md-4">
+            <div class="card card-highlight p-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <div class="text-muted">Total Pendapatan</div>
+                  <div class="h5 fw-bold text-primary">Rp 900.000</div>
                 </div>
-                <div class="card-body">
-                  <p class="text-muted">Belum ada data riwayat yang ditampilkan.</p>
-                  <!-- Di sini bisa ditambahkan tabel transaksi -->
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card card-highlight p-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <div class="text-muted">Butuh Restock</div>
+                  <div class="h5 fw-bold text-warning">Sabun Mandi, Telur</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div> <!-- End Main Content -->
+
+        <!-- akses cepat -->
+        <div class="mt-5">
+          <div class="section-header">Akses Cepat</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="card shadow-sm p-4 d-flex flex-column justify-content-between">
+                <div>
+                  <h5 class="fw-bold">Tambah Stok Baru</h5>
+                  <p class="text-muted">Catat stok baru ke dalam database dengan cepat.</p>
+                </div>
+                <a href="#" class="btn btn-lg mt-3 fw-semibold" style="background-color: #ffa500;">Tambah Produk</a>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card shadow-sm p-4 h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <h5 class="fw-bold">Mulai Transaksi</h5>
+                  <p class="text-muted">Masuk ke mode kasir untuk mencatat penjualan.</p>
+                </div>
+                <a href="transaksi.php" class="btn btn-lg mt-3 fw-semibold" style="background-color: #ffa500">Mulai Transaksi</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- placeholder next fitur -->
+        <div class="mt-5">
+          <div class="section-header">fitur tambahan</div>
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <p class="text-muted">Fitur tambahan nanti akan ditaruh di sini.</p>
+              
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
+
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
