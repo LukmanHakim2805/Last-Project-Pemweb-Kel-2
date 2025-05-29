@@ -2,7 +2,7 @@
 require 'conn.php';
 session_start();
 
-  if (isset($_SESSION["login"])) {
+  if (isset($_SESSION["user"])) {
     header('location:dashboard.php');
     exit;
 }
@@ -16,19 +16,20 @@ session_start();
           $row = mysqli_fetch_assoc($cekdb);
     
           if( $password == $row["password"] ){
-            $_SESSION["login"] = true;
+            $_SESSION["user"] = $username;
             header('location:dashboard.php');
           }else{
-            echo "Username atau Password salah";
+            $_SESSION['error'] = "Username atau Password salah";
           }
       }else{
-          echo "Username atau Password salah";
+          $_SESSION['error'] = "Username atau Password salah";
       }
     }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -37,13 +38,33 @@ session_start();
 </head>
 
 <style>
-    body {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('../assets/welcome.jpg') no-repeat center center fixed;
-        background-size: cover;
-    }
+  body {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('../assets/welcome.jpg') no-repeat center center fixed;
+    background-size: cover;
+  }
 </style>
 
 <body class="bg-light">
+
+  <!-- Error Modal -->
+  <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="errorModalLabel">Login Gagal</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <?php
+          if (isset($_SESSION['error'])) {
+              echo $_SESSION['error'];
+              unset($_SESSION['error']);
+          }
+          ?>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="container d-flex align-items-center justify-content-center vh-100">
     <div class="card p-4 shadow" style="max-width: 400px; width: 100%;">
@@ -55,7 +76,8 @@ session_start();
         </div>
         <div class="mb-3">
           <label for="password" class="form-label">Password</label>
-          <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Enter password"
+            required>
         </div>
         <div class="mb-3 form-check">
           <input type="checkbox" class="form-check-input" id="remember">
@@ -70,5 +92,17 @@ session_start();
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var errorModal = document.getElementById('errorModal');
+      var modalBody = errorModal.querySelector('.modal-body').innerText.trim();
+
+      if (modalBody !== "") {
+        var modal = new bootstrap.Modal(errorModal);
+        modal.show();
+      }
+    });
+  </script>
 </body>
+
 </html>

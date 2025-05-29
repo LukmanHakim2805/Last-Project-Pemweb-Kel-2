@@ -126,29 +126,29 @@
       <div class="row mb-4">
         <div class="col-md-4 mb-4">
           <div class="card">
-            <img src="assets/welcome.jpg" class="card-img-top" alt="Galeri 1">
+            <img src="assets/welcome.jpg" class="card-img-top border border-3 border-dark" alt="Galeri 1">
           </div>
         </div>
         <div class="col-md-4 mb-4">
           <div class="card">
-            <img src="assets/welcome.jpg" class="card-img-top" alt="Galeri 2">
+            <img src="assets/welcome.jpg" class="card-img-top border border-3 border-dark" alt="Galeri 2">
           </div>
         </div>
         <div class="col-md-4 mb-4">
           <div class="card">
-            <img src="assets/welcome.jpg" class="card-img-top" alt="Galeri 3">
+            <img src="assets/welcome.jpg" class="card-img-top border border-3 border-dark" alt="Galeri 3">
           </div>
         </div>
       </div>
       <div class="row">
         <div class="col-md-6 mb-4">
           <div class="card">
-            <img src="assets/welcome.jpg" class="card-img-top" alt="Galeri 4">
+            <img src="assets/welcome.jpg" class="card-img-top border border-3 border-dark" alt="Galeri 4">
           </div>
         </div>
         <div class="col-md-6 mb-4">
           <div class="card">
-            <img src="assets/welcome.jpg" class="card-img-top" alt="Galeri 5">
+            <img src="assets/welcome.jpg" class="card-img-top border border-3 border-dark" alt="Galeri 5">
           </div>
         </div>
       </div>
@@ -182,7 +182,7 @@
   </section>
 
   <footer class="text-center p-3 bg-black text-white">
-    © 2025 WARUNG ANU. All rights reserved.
+    © 2025 TOKO DASHA. All rights reserved.
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
