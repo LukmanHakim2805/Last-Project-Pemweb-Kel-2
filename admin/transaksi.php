@@ -10,41 +10,39 @@ if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// Tambah ke keranjang
 if (isset($_POST['tambah_ke_keranjang'])) {
-    $id_produk = $_POST['id_produk'];
+    $id_produk = (int)$_POST['id_produk'];
     $jumlah = (int)$_POST['jumlah'];
 
     $query = mysqli_query($conn, "SELECT * FROM produk WHERE id = $id_produk");
     $produk = mysqli_fetch_assoc($query);
 
     if ($produk) {
-        if (isset($_SESSION['cart'][$id_produk])) {
-            $_SESSION['cart'][$id_produk]['jumlah'] += $jumlah;
-            $_SESSION['cart'][$id_produk]['subtotal'] = $_SESSION['cart'][$id_produk]['harga'] * $_SESSION['cart'][$id_produk]['jumlah'];
+        $jumlah_sebelumnya = isset($_SESSION['cart'][$id_produk]) ? $_SESSION['cart'][$id_produk]['jumlah'] : 0;
+        $jumlah_total = $jumlah_sebelumnya + $jumlah;
+
+        if ($jumlah_total > $produk['stok']) {
+            $error = "Stok tidak cukup untuk produk <strong>" . htmlspecialchars($produk['nama_produk']) . "</strong>. Stok tersedia: {$produk['stok']}, diminta: {$jumlah_total}.";
         } else {
             $_SESSION['cart'][$id_produk] = [
                 'nama' => $produk['nama_produk'],
                 'harga' => $produk['harga'],
-                'jumlah' => $jumlah,
-                'subtotal' => $produk['harga'] * $jumlah
+                'jumlah' => $jumlah_total,
+                'subtotal' => $produk['harga'] * $jumlah_total
             ];
         }
     }
 }
 
-// Hapus item dari keranjang
 if (isset($_GET['hapus'])) {
     $hapus_id = (int)$_GET['hapus'];
     unset($_SESSION['cart'][$hapus_id]);
 }
 
-// Simpan transaksi
 if (isset($_POST['simpan_transaksi'])) {
+    $tanggal = date('Y-m-d');
     $pembayaran = (float)$_POST['pembayaran'];
     $total = array_sum(array_column($_SESSION['cart'], 'subtotal'));
-    $tanggal = date('Y-m-d');
-    $id_admin = $_SESSION['admin_id'] ?? 1; // Sementara default id_admin = 1
     $kembalian = $pembayaran - $total;
 
     if ($kembalian < 0) {
@@ -71,7 +69,6 @@ if (isset($_POST['simpan_transaksi'])) {
     }
 }
 
-// Ambil daftar produk dari database
 $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk ASC");
 ?>
 
@@ -81,7 +78,6 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Transaksi Kasir - Toko Dasha</title>
-    <link rel="stylesheet" href="style.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="p-4">
@@ -98,9 +94,15 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
 
     <form method="POST" class="mb-4">
         <div class="mb-3">
+            <label for="search_produk" class="form-label">Cari Produk:</label>
+            <input type="text" id="search_produk" class="form-control" placeholder="Ketik nama produk..." />
+        </div>
+
+        <div class="mb-3">
             <label for="id_produk" class="form-label">Pilih Produk:</label>
             <select name="id_produk" id="id_produk" class="form-select" required>
                 <option value="">-- Pilih Produk --</option>
+                <?php mysqli_data_seek($produk_list, 0); ?>
                 <?php while ($p = mysqli_fetch_assoc($produk_list)) : ?>
                     <option value="<?= $p['id'] ?>">
                         <?= htmlspecialchars($p['nama_produk']) ?> - <?= formatRupiah($p['harga']) ?> (Stok: <?= $p['stok'] ?>)
@@ -111,7 +113,7 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
 
         <div class="mb-3">
             <label for="jumlah" class="form-label">Jumlah:</label>
-            <input type="number" name="jumlah" id="jumlah" class="form-control" min="1" required />
+            <input type="number" name="jumlah" id="jumlah" min="1" class="form-control" required />
         </div>
 
         <button type="submit" name="tambah_ke_keranjang" class="btn btn-primary">Tambah ke Keranjang</button>
@@ -146,9 +148,7 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
                         <td><?= formatRupiah($item['harga']) ?></td>
                         <td><?= $item['jumlah'] ?></td>
                         <td><?= formatRupiah($item['subtotal']) ?></td>
-                        <td>
-                            <a href="?hapus=<?= $id ?>" class="btn btn-danger btn-sm">Hapus</a>
-                        </td>
+                        <td><a href="?hapus=<?= $id ?>" class="btn btn-danger btn-sm">Hapus</a></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -163,10 +163,21 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
             </div>
             <button type="submit" name="simpan_transaksi" class="btn btn-success">Simpan Transaksi</button>
         </form>
-
     <?php else: ?>
         <p>Keranjang kosong.</p>
     <?php endif; ?>
+
+    <script>
+        document.getElementById('search_produk').addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase();
+            const options = document.querySelectorAll('#id_produk option');
+
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                option.style.display = text.includes(searchTerm) || option.value === "" ? "block" : "none";
+            });
+        });
+    </script>
 
 </body>
 </html>
