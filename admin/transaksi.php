@@ -6,12 +6,37 @@ function formatRupiah($angka) {
     return 'Rp ' . number_format($angka, 0, ',', '.');
 }
 
-// Simulasi isi keranjang manual (jika belum diisi sebelumnya)
 if (!isset($_SESSION['cart'])) {
-    $_SESSION['cart'] = [
-        1 => ['nama' => 'Contoh Produk A', 'harga' => 10000, 'jumlah' => 2, 'subtotal' => 20000],
-        2 => ['nama' => 'Contoh Produk B', 'harga' => 15000, 'jumlah' => 1, 'subtotal' => 15000],
-    ];
+    $_SESSION['cart'] = [];
+}
+
+// Tambah ke keranjang
+if (isset($_POST['tambah_ke_keranjang'])) {
+    $id_produk = $_POST['id_produk'];
+    $jumlah = (int)$_POST['jumlah'];
+
+    $query = mysqli_query($conn, "SELECT * FROM produk WHERE id = $id_produk");
+    $produk = mysqli_fetch_assoc($query);
+
+    if ($produk) {
+        if (isset($_SESSION['cart'][$id_produk])) {
+            $_SESSION['cart'][$id_produk]['jumlah'] += $jumlah;
+            $_SESSION['cart'][$id_produk]['subtotal'] = $_SESSION['cart'][$id_produk]['harga'] * $_SESSION['cart'][$id_produk]['jumlah'];
+        } else {
+            $_SESSION['cart'][$id_produk] = [
+                'nama' => $produk['nama_produk'],
+                'harga' => $produk['harga'],
+                'jumlah' => $jumlah,
+                'subtotal' => $produk['harga'] * $jumlah
+            ];
+        }
+    }
+}
+
+// Hapus item dari keranjang
+if (isset($_GET['hapus'])) {
+    $hapus_id = (int)$_GET['hapus'];
+    unset($_SESSION['cart'][$hapus_id]);
 }
 
 // Ambil daftar produk dari database
@@ -34,7 +59,7 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
     <form method="POST" class="mb-4">
         <div class="mb-3">
             <label for="id_produk" class="form-label">Pilih Produk:</label>
-            <select name="id_produk" id="id_produk" class="form-select" disabled>
+            <select name="id_produk" id="id_produk" class="form-select" required>
                 <option value="">-- Pilih Produk --</option>
                 <?php while ($p = mysqli_fetch_assoc($produk_list)) : ?>
                     <option value="<?= $p['id'] ?>">
@@ -46,10 +71,10 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
 
         <div class="mb-3">
             <label for="jumlah" class="form-label">Jumlah:</label>
-            <input type="number" name="jumlah" id="jumlah" class="form-control" disabled />
+            <input type="number" name="jumlah" id="jumlah" class="form-control" min="1" required />
         </div>
 
-        <button type="submit" name="tambah_ke_keranjang" class="btn btn-primary" disabled>Tambah ke Keranjang</button>
+        <button type="submit" name="tambah_ke_keranjang" class="btn btn-primary">Tambah ke Keranjang</button>
     </form>
 
     <hr />
@@ -72,7 +97,7 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
                 <?php
                 $no = 1;
                 $total = 0;
-                foreach ($_SESSION['cart'] as $item):
+                foreach ($_SESSION['cart'] as $id => $item):
                     $total += $item['subtotal'];
                 ?>
                     <tr>
@@ -81,11 +106,14 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
                         <td><?= formatRupiah($item['harga']) ?></td>
                         <td><?= $item['jumlah'] ?></td>
                         <td><?= formatRupiah($item['subtotal']) ?></td>
-                        <td><button class="btn btn-danger btn-sm" disabled>Hapus</button></td>
+                        <td>
+                            <a href="?hapus=<?= $id ?>" class="btn btn-danger btn-sm">Hapus</a>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
+
         <p><strong>Total: <?= formatRupiah($total) ?></strong></p>
 
         <form method="POST">
