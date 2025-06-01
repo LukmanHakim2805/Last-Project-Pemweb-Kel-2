@@ -39,6 +39,38 @@ if (isset($_GET['hapus'])) {
     unset($_SESSION['cart'][$hapus_id]);
 }
 
+// Simpan transaksi
+if (isset($_POST['simpan_transaksi'])) {
+    $pembayaran = (float)$_POST['pembayaran'];
+    $total = array_sum(array_column($_SESSION['cart'], 'subtotal'));
+    $tanggal = date('Y-m-d');
+    $id_admin = $_SESSION['admin_id'] ?? 1; // Sementara default id_admin = 1
+    $kembalian = $pembayaran - $total;
+
+    if ($kembalian < 0) {
+        $error = "Pembayaran tidak cukup!";
+    } else {
+        $stmt = $conn->prepare("INSERT INTO transaksi (tanggal, total, pembayaran, kembalian, id_admin) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sdddi", $tanggal, $total, $pembayaran, $kembalian, $id_admin);
+        $stmt->execute();
+        $id_transaksi = $stmt->insert_id;
+
+        foreach ($_SESSION['cart'] as $id_produk => $item) {
+            $jumlah = $item['jumlah'];
+            $harga = $item['harga'];
+            $subtotal = $item['subtotal'];
+
+            $conn->query("INSERT INTO detail_transaksi (id_transaksi, id_produk, jumlah, harga_satuan, subtotal) 
+                          VALUES ($id_transaksi, $id_produk, $jumlah, $harga, $subtotal)");
+
+            $conn->query("UPDATE produk SET stok = stok - $jumlah WHERE id = $id_produk");
+        }
+
+        $_SESSION['cart'] = [];
+        $sukses = "Transaksi berhasil disimpan. Kembalian: " . formatRupiah($kembalian);
+    }
+}
+
 // Ambil daftar produk dari database
 $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk ASC");
 ?>
@@ -55,6 +87,14 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
 <body class="p-4">
 
     <h2 class="mb-4">🛒 Transaksi Kasir</h2>
+
+    <?php if (isset($error)): ?>
+        <div class="alert alert-danger"><?= $error ?></div>
+    <?php endif; ?>
+
+    <?php if (isset($sukses)): ?>
+        <div class="alert alert-success"><?= $sukses ?></div>
+    <?php endif; ?>
 
     <form method="POST" class="mb-4">
         <div class="mb-3">
@@ -119,9 +159,9 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
         <form method="POST">
             <div class="mb-3">
                 <label for="pembayaran" class="form-label">Jumlah Pembayaran:</label>
-                <input type="number" name="pembayaran" id="pembayaran" class="form-control" disabled />
+                <input type="number" name="pembayaran" id="pembayaran" min="<?= $total ?>" class="form-control" required />
             </div>
-            <button type="submit" name="simpan_transaksi" class="btn btn-success" disabled>Simpan Transaksi</button>
+            <button type="submit" name="simpan_transaksi" class="btn btn-success">Simpan Transaksi</button>
         </form>
 
     <?php else: ?>
