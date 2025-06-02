@@ -1,64 +1,79 @@
 <?php
-require 'conn.php';
-session_start();
+include 'conn.php';
 
-if (!isset($_SESSION["user"])) {
-    header('location:index.php');
-    exit;
-}
-?>
+// Jika ada parameter `id`, tampilkan form restock untuk produk terkait
+if (isset($_GET['id'])):
+    $id = $_GET['id'];
+    $data = $conn->query("SELECT * FROM produk WHERE id = $id")->fetch_assoc();
+    ?>
+    <h2>Restock Produk: <?= $data['nama_produk'] ?></h2>
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Laporan Penjualan - Toko Dasha</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #f1f3f5;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    .sidebar {
-      position: fixed;
-      height: 100%;
-      background-color: rgb(34, 53, 71);
-      padding: 25px 15px;
-    }
-    .sidebar .nav-link {
-      color: #adb5bd;
-      border-radius: 5px;
-    }
-    .sidebar .nav-link.active,
-    .sidebar .nav-link:hover {
-      background-color:rgb(95, 168, 241);
-      color: #fff;
-    }
-  </style>
-</head>
-<body>
-  <div class="container-fluid">
-    <div class="row">
-      <!-- sidebar -->
-      <div class="col-md-2 sidebar">
-        <h4 class="text-white mb-4">Toko Dasha</h4>
-        <nav class="nav flex-column">
-          <a href="dashboard.php" class="nav-link">Dashboard</a>
-          <a href="transaksi.php" class="nav-link">Transaksi</a>
-          <a href="#" class="nav-link active">Manajemen Stok</a>
-          <a href="laporan.php" class="nav-link">Laporan Penjualan</a>
-          <a href="logout.php" class="nav-link text-danger mt-auto">Keluar</a>
-        </nav>
-      </div>
+    <form action="proses_restock.php" method="post">
+        <input type="hidden" name="id_produk" value="<?= $data['id'] ?>">
+        Jumlah Tambah: <input type="number" name="jumlah" required><br><br>
+        Keterangan (opsional): <input type="text" name="keterangan"><br><br>
+        ID Admin: <input type="number" name="id_admin" required><br><br>
+        <input type="submit" value="Restock">
+    </form>
+    <a href="index.php">Kembali ke daftar</a>
 
-      <!-- konten utama -->
-      <div class="col-md-10 offset-md-2 p-4">
+<?php
+// Jika ada parameter `log`, tampilkan riwayat restock
+elseif (isset($_GET['log'])):
+    $query = "
+        SELECT r.*, p.nama_produk, a.username 
+        FROM restock r
+        LEFT JOIN produk p ON r.id_produk = p.id
+        LEFT JOIN admin a ON r.id_admin = a.id
+        ORDER BY r.tanggal DESC
+    ";
+    $result = $conn->query($query);
+    ?>
 
-      </div>
-    </div>
-  </div>
+    <h2>Riwayat Restock</h2>
+    <a href="index.php">Kembali ke daftar</a>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <tr>
+            <th>Tanggal</th>
+            <th>Produk</th>
+            <th>Jumlah</th>
+            <th>Keterangan</th>
+            <th>Admin</th>
+        </tr>
+        <?php while($row = $result->fetch_assoc()): ?>
+        <tr>
+            <td><?= $row['tanggal'] ?></td>
+            <td><?= $row['nama_produk'] ?></td>
+            <td><?= $row['jumlah'] ?></td>
+            <td><?= $row['keterangan'] ?></td>
+            <td><?= $row['username'] ?></td>
+        </tr>
+        <?php endwhile; ?>
+    </table>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php
+// Default: tampilkan daftar produk
+else:
+    $result = $conn->query("SELECT produk.*, kategori.nama_kategori FROM produk LEFT JOIN kategori ON produk.id_kategori = kategori.id");
+    ?>
+    <h2>Daftar Produk - TOKO DASHA</h2>
+    <a href="?log=1">Lihat Riwayat Restock</a>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <tr>
+            <th>Nama Produk</th>
+            <th>Kategori</th>
+            <th>Harga</th>
+            <th>Stok</th>
+            <th>Aksi</th>
+        </tr>
+        <?php while($row = $result->fetch_assoc()): ?>
+        <tr>
+            <td><?= $row['nama_produk'] ?></td>
+            <td><?= $row['nama_kategori'] ?></td>
+            <td><?= number_format($row['harga'], 2) ?></td>
+            <td><?= $row['stok'] ?></td>
+            <td><a href="?id=<?= $row['id'] ?>">Restock</a></td>
+        </tr>
+        <?php endwhile; ?>
+    </table>
+<?php endif; ?>
