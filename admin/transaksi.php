@@ -37,6 +37,8 @@ if (isset($_POST['tambah_ke_keranjang'])) {
 if (isset($_GET['hapus'])) {
     $hapus_id = (int)$_GET['hapus'];
     unset($_SESSION['cart'][$hapus_id]);
+    header("Location: transaksi.php");
+    exit;
 }
 
 if (isset($_POST['simpan_transaksi'])) {
@@ -72,6 +74,8 @@ if (isset($_POST['simpan_transaksi'])) {
 $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk ASC");
 ?>
 
+
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -79,105 +83,110 @@ $produk_list = mysqli_query($conn, "SELECT * FROM produk ORDER BY nama_produk AS
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Transaksi Kasir - Toko Dasha</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .card img {
+        height: 120px;
+        object-fit: contain;
+    }
+</style>
 </head>
-<body class="p-4">
+<body class="p-4 bg-light">
 
-    <h2 class="mb-4">🛒 Transaksi Kasir</h2>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Daftar Produk -->
+        <div class="col-lg-8">
+            <h3 class="mb-4">Pilih Produk</h3>
+            <div class="row row-cols-2 row-cols-md-3 g-3">
+    <?php mysqli_data_seek($produk_list, 0); ?>
+    <?php while ($p = mysqli_fetch_assoc($produk_list)) : ?>
+        <div class="col">
+            <form method="POST" class="klik-card">
+                <input type="hidden" name="id_produk" value="<?= $p['id'] ?>">
+                <input type="hidden" name="jumlah" value="1">
+                <button type="submit" name="tambah_ke_keranjang" class="border-0 bg-transparent p-0 w-100 h-100">
+                    <div class="card h-100 klik-area">
+                        <img src="path-to-images/<?= $p['gambar'] ?? 'default.jpg' ?>" class="card-img-top" alt="<?= htmlspecialchars($p['nama_produk']) ?>">
+                        <div class="card-body text-center">
+                            <h6 class="card-title"><?= htmlspecialchars($p['nama_produk']) ?></h6>
+                            <p class="text-primary fw-bold mb-0"><?= formatRupiah($p['harga']) ?></p>
+                        </div>
+                    </div>
+                </button>
+            </form>
+        </div>
+    <?php endwhile; ?>
+</div>
 
-    <?php if (isset($error)): ?>
-        <div class="alert alert-danger"><?= $error ?></div>
-    <?php endif; ?>
-
-    <?php if (isset($sukses)): ?>
-        <div class="alert alert-success"><?= $sukses ?></div>
-    <?php endif; ?>
-
-    <form method="POST" class="mb-4">
-        <div class="mb-3">
-            <label for="search_produk" class="form-label">Cari Produk:</label>
-            <input type="text" id="search_produk" class="form-control" placeholder="Ketik nama produk..." />
         </div>
 
-        <div class="mb-3">
-            <label for="id_produk" class="form-label">Pilih Produk:</label>
-            <select name="id_produk" id="id_produk" class="form-select" required>
-                <option value="">-- Pilih Produk --</option>
-                <?php mysqli_data_seek($produk_list, 0); ?>
-                <?php while ($p = mysqli_fetch_assoc($produk_list)) : ?>
-                    <option value="<?= $p['id'] ?>">
-                        <?= htmlspecialchars($p['nama_produk']) ?> - <?= formatRupiah($p['harga']) ?> (Stok: <?= $p['stok'] ?>)
-                    </option>
-                <?php endwhile; ?>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="jumlah" class="form-label">Jumlah:</label>
-            <input type="number" name="jumlah" id="jumlah" min="1" class="form-control" required />
-        </div>
-
-        <button type="submit" name="tambah_ke_keranjang" class="btn btn-primary">Tambah ke Keranjang</button>
-    </form>
-
-    <hr />
-
-    <h3>Keranjang Belanja</h3>
-
-    <?php if (!empty($_SESSION['cart'])): ?>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama Produk</th>
-                    <th>Harga</th>
-                    <th>Jumlah</th>
-                    <th>Subtotal</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $no = 1;
-                $total = 0;
-                foreach ($_SESSION['cart'] as $id => $item):
-                    $total += $item['subtotal'];
-                ?>
-                    <tr>
-                        <td><?= $no++ ?></td>
-                        <td><?= htmlspecialchars($item['nama']) ?></td>
-                        <td><?= formatRupiah($item['harga']) ?></td>
-                        <td><?= $item['jumlah'] ?></td>
-                        <td><?= formatRupiah($item['subtotal']) ?></td>
-                        <td><a href="?hapus=<?= $id ?>" class="btn btn-danger btn-sm">Hapus</a></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-
-        <p><strong>Total: <?= formatRupiah($total) ?></strong></p>
-
-        <form method="POST">
-            <div class="mb-3">
-                <label for="pembayaran" class="form-label">Jumlah Pembayaran:</label>
-                <input type="number" name="pembayaran" id="pembayaran" min="<?= $total ?>" class="form-control" required />
+        <!-- Panel Samping -->
+        <div class="col-lg-4">
+            <!-- Petunjuk -->
+            <div class="alert alert-success">
+                <h6><i class="bi bi-info-circle"></i> Petunjuk</h6>
+                <ul class="mb-0 ps-3">
+                    <li>Pilih produk dari daftar</li>
+                    <li>Klik ikon roda untuk atur harga</li>
+                    <li>Klik nama customer untuk ubah nama</li>
+                    <li>Klik ikon hapus untuk reset keranjang</li>
+                </ul>
             </div>
-            <button type="submit" name="simpan_transaksi" class="btn btn-success">Simpan Transaksi</button>
-        </form>
-    <?php else: ?>
-        <p>Keranjang kosong.</p>
-    <?php endif; ?>
 
-    <script>
-        document.getElementById('search_produk').addEventListener('input', function () {
-            const searchTerm = this.value.toLowerCase();
-            const options = document.querySelectorAll('#id_produk option');
+            <!-- Keranjang -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">🧺 Keranjang Belanja</div>
+                <div class="card-body">
+                    <?php if (!empty($_SESSION['cart'])): ?>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Produk</th>
+                                    <th>Jml</th>
+                                    <th>Sub</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $total = 0;
+                                foreach ($_SESSION['cart'] as $id => $item):
+                                    $total += $item['subtotal'];
+                                ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($item['nama']) ?></td>
+                                        <td><?= $item['jumlah'] ?></td>
+                                        <td><?= formatRupiah($item['subtotal']) ?></td>
+                                        <td><a href="?hapus=<?= $id ?>" class="btn btn-sm btn-danger">✕</a></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <p class="fw-bold">Total: <?= formatRupiah($total) ?></p>
 
-            options.forEach(option => {
-                const text = option.textContent.toLowerCase();
-                option.style.display = text.includes(searchTerm) || option.value === "" ? "block" : "none";
-            });
-        });
-    </script>
+                        <form method="POST">
+                            <input type="number" name="pembayaran" class="form-control mb-2" min="<?= $total ?>" placeholder="Pembayaran" required />
+                            <button type="submit" name="simpan_transaksi" class="btn btn-success w-100">Bayar</button>
+                        </form>
+                    <?php else: ?>
+                        <p class="text-muted">Keranjang kosong.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
 
-</body>
+            <!-- Notifikasi -->
+            <?php if (isset($error)): ?>
+                <div class="alert alert-danger"><?= $error ?></div>
+            <?php endif; ?>
+            <?php if (isset($sukses)): ?>
+                <div class="alert alert-success"><?= $sukses ?></div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+
 </html>
