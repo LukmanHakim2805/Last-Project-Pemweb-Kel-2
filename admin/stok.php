@@ -1,7 +1,7 @@
 <?php
 include 'conn.php';
 
-// Jika ada parameter `id`, tampilkan form restock untuk produk terkait
+// Jika ada parameter id, tampilkan form restock untuk produk terkait
 if (isset($_GET['id'])):
     $id = $_GET['id'];
     $data = $conn->query("SELECT * FROM produk WHERE id = $id")->fetch_assoc();
@@ -18,7 +18,7 @@ if (isset($_GET['id'])):
     <a href="index.php">Kembali ke daftar</a>
 
 <?php
-// Jika ada parameter `log`, tampilkan riwayat restock
+// Jika ada parameter log, tampilkan riwayat restock
 elseif (isset($_GET['log'])):
     $query = "
         SELECT r.*, p.nama_produk, a.username 
