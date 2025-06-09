@@ -11,7 +11,7 @@ if (isset($_POST['tambah_produk'])) {
     $id_kategori = (int)$_POST['id_kategori'];
     $aktif = 1; // default aktif
 
-    // Upload foto jika ada
+
     $foto = null;
     if (!empty($_FILES['foto']['name'])) {
         $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
@@ -26,39 +26,21 @@ if (isset($_POST['tambah_produk'])) {
         }
     }
 
-<?php
-// Jika ada parameter log, tampilkan riwayat restock
-elseif (isset($_GET['log'])):
-    $query = "
-        SELECT r.*, p.nama_produk, a.username 
-        FROM restock r
-        LEFT JOIN produk p ON r.id_produk = p.id
-        LEFT JOIN admin a ON r.id_admin = a.id
-        ORDER BY r.tanggal DESC
-    ";
-    $result = $conn->query($query);
-    ?>
+    $check = $conn->query("SELECT id FROM produk WHERE nama_produk = '".$conn->real_escape_string($nama)."'");
+    if ($check->num_rows > 0) {
+        $_SESSION['error'] = "Nama produk sudah ada.";
+        header("Location: stok.php");
+        exit;
+    }
 
-    <h2>Riwayat Restock</h2>
-    <a href="index.php">Kembali ke daftar</a>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>Tanggal</th>
-            <th>Produk</th>
-            <th>Jumlah</th>
-            <th>Keterangan</th>
-            <th>Admin</th>
-        </tr>
-        <?php while($row = $result->fetch_assoc()): ?>
-        <tr>
-            <td><?= $row['tanggal'] ?></td>
-            <td><?= $row['nama_produk'] ?></td>
-            <td><?= $row['jumlah'] ?></td>
-            <td><?= $row['keterangan'] ?></td>
-            <td><?= $row['username'] ?></td>
-        </tr>
-        <?php endwhile; ?>
-    </table>
+    $stmt = $conn->prepare("INSERT INTO produk (nama_produk, harga, stok, id_kategori, foto, aktif) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sdiisi", $nama, $harga, $stok, $id_kategori, $foto, $aktif);
+    $stmt->execute();
+
+    $_SESSION['sukses'] = "Produk baru berhasil ditambahkan.";
+    header("Location: stok.php");
+    exit;
+}
 
 <?php
 // Default: tampilkan daftar produk
