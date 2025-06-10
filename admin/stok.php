@@ -1,55 +1,46 @@
 <?php
+session_start();
 include 'conn.php';
 
-// Jika ada parameter id, tampilkan form restock untuk produk terkait
-if (isset($_GET['id'])):
-    $id = $_GET['id'];
-    $data = $conn->query("SELECT * FROM produk WHERE id = $id")->fetch_assoc();
-    ?>
-    <h2>Restock Produk: <?= $data['nama_produk'] ?></h2>
+$upload_dir = 'uploads/';
 
-    <form action="proses_restock.php" method="post">
-        <input type="hidden" name="id_produk" value="<?= $data['id'] ?>">
-        Jumlah Tambah: <input type="number" name="jumlah" required><br><br>
-        Keterangan (opsional): <input type="text" name="keterangan"><br><br>
-        ID Admin: <input type="number" name="id_admin" required><br><br>
-        <input type="submit" value="Restock">
-    </form>
-    <a href="index.php">Kembali ke daftar</a>
+if (isset($_POST['tambah_produk'])) {
+    $nama = trim($_POST['nama_produk']);
+    $harga = (float)$_POST['harga'];
+    $stok = (int)$_POST['stok'];
+    $id_kategori = (int)$_POST['id_kategori'];
+    $aktif = 1; // default aktif
 
-<?php
-// Jika ada parameter log, tampilkan riwayat restock
-elseif (isset($_GET['log'])):
-    $query = "
-        SELECT r.*, p.nama_produk, a.username 
-        FROM restock r
-        LEFT JOIN produk p ON r.id_produk = p.id
-        LEFT JOIN admin a ON r.id_admin = a.id
-        ORDER BY r.tanggal DESC
-    ";
-    $result = $conn->query($query);
-    ?>
 
-    <h2>Riwayat Restock</h2>
-    <a href="index.php">Kembali ke daftar</a>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>Tanggal</th>
-            <th>Produk</th>
-            <th>Jumlah</th>
-            <th>Keterangan</th>
-            <th>Admin</th>
-        </tr>
-        <?php while($row = $result->fetch_assoc()): ?>
-        <tr>
-            <td><?= $row['tanggal'] ?></td>
-            <td><?= $row['nama_produk'] ?></td>
-            <td><?= $row['jumlah'] ?></td>
-            <td><?= $row['keterangan'] ?></td>
-            <td><?= $row['username'] ?></td>
-        </tr>
-        <?php endwhile; ?>
-    </table>
+    $foto = null;
+    if (!empty($_FILES['foto']['name'])) {
+        $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+        $allowed = ['jpg','jpeg','png','gif'];
+        if (in_array($ext, $allowed)) {
+            $foto = uniqid() . '.' . $ext;
+            move_uploaded_file($_FILES['foto']['tmp_name'], $upload_dir . $foto);
+        } else {
+            $_SESSION['error'] = "Format foto tidak didukung. Gunakan JPG, PNG, GIF.";
+            header("Location: stok.php");
+            exit;
+        }
+    }
+
+    $check = $conn->query("SELECT id FROM produk WHERE nama_produk = '".$conn->real_escape_string($nama)."'");
+    if ($check->num_rows > 0) {
+        $_SESSION['error'] = "Nama produk sudah ada.";
+        header("Location: stok.php");
+        exit;
+    }
+
+    $stmt = $conn->prepare("INSERT INTO produk (nama_produk, harga, stok, id_kategori, foto, aktif) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sdiisi", $nama, $harga, $stok, $id_kategori, $foto, $aktif);
+    $stmt->execute();
+
+    $_SESSION['sukses'] = "Produk baru berhasil ditambahkan.";
+    header("Location: stok.php");
+    exit;
+}
 
 <?php
 // Default: tampilkan daftar produk
