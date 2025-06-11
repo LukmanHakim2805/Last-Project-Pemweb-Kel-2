@@ -28,7 +28,7 @@ if (!empty($search)) {
 
 // Riwayat transaksi 10 terbaru (dengan filter pencarian)
 $q_transaksi = mysqli_query($conn, "
-SELECT t.id, t.tanggal, t.total, t.pembayaran, t.kembalian, COUNT(dt.id) AS jumlah_item
+SELECT t.id, t.tanggal, t.total, t.pembayaran, COUNT(dt.id) AS jumlah_item
 FROM transaksi t
 LEFT JOIN detail_transaksi dt ON t.id = dt.id_transaksi
 WHERE t.tanggal BETWEEN '$start' AND '$end' $search_filter
@@ -136,13 +136,6 @@ $_SESSION['laporan_data'] = [
       </table>
       <div class="mt-4 mb-5">
         <a href="export_excel.php" class="btn btn-success">Export ke Excel</a>
-        <a href="export_pdf.php" class="btn btn-danger">Export ke PDF</a>
-      </div>
-
-      <!-- Grafik (placeholder) -->
-      <div class="mt-5 mb-5">
-        <h5>Grafik Penjualan (Placeholder)</h5>
-        <div class="bg-light border p-4 text-center">[Grafik akan ditambahkan di sini]</div>
       </div>
 
       <!-- Riwayat Transaksi -->
@@ -162,7 +155,7 @@ $_SESSION['laporan_data'] = [
       </form>
       <table class="table table-striped w-100">
         <thead class="table-light">
-          <tr><th>ID</th><th>Tanggal</th><th>Total</th><th>Jumlah Item</th><th>Pembayaran</th><th>Kembalian</th></tr>
+          <tr><th>ID</th><th>Tanggal</th><th>Total</th><th>Jumlah Item</th><th>Pembayaran</th></tr>
         </thead>
         <tbody>
           <?php while ($row = mysqli_fetch_assoc($q_transaksi)): ?>
@@ -172,12 +165,50 @@ $_SESSION['laporan_data'] = [
             <td>Rp <?= number_format($row['total'], 0, ',', '.') ?></td>
             <td><?= $row['jumlah_item'] ?></td>
             <td>Rp <?= number_format($row['pembayaran'], 0, ',', '.') ?></td>
-            <td>Rp <?= number_format($row['kembalian'], 0, ',', '.') ?></td>
+             <td><button class="btn btn-secondary btn-sm view-detail" data-id="<?= $row['id'] ?>">Detail</button></td>
           </tr>
           <?php endwhile; ?>
         </tbody>
       </table>
     </div>
+    <!-- Modal Detail -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailModalLabel">Detail Transaksi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="detailContent">
+        Memuat data...
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('.view-detail').click(function() {
+        var id = $(this).data('id');
+        $('#detailContent').html('Memuat data...');
+
+        $.ajax({
+            url: 'get_detail.php',
+            type: 'GET',
+            data: { id: id },
+            success: function(response) {
+                $('#detailContent').html(response);
+                var detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
+                detailModal.show();
+            },
+            error: function() {
+                $('#detailContent').html('Terjadi kesalahan saat memuat data.');
+            }
+        });
+    });
+});
+</script>
   </div>
 </div>
 </body>
