@@ -42,29 +42,26 @@ if (isset($_POST['tambah_produk'])) {
     exit;
 }
 
-<?php
-// Default: tampilkan daftar produk
-else:
-    $result = $conn->query("SELECT produk.*, kategori.nama_kategori FROM produk LEFT JOIN kategori ON produk.id_kategori = kategori.id");
-    ?>
-    <h2>Daftar Produk - TOKO DASHA</h2>
-    <a href="?log=1">Lihat Riwayat Restock</a>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>Nama Produk</th>
-            <th>Kategori</th>
-            <th>Harga</th>
-            <th>Stok</th>
-            <th>Aksi</th>
-        </tr>
-        <?php while($row = $result->fetch_assoc()): ?>
-        <tr>
-            <td><?= $row['nama_produk'] ?></td>
-            <td><?= $row['nama_kategori'] ?></td>
-            <td><?= number_format($row['harga'], 2) ?></td>
-            <td><?= $row['stok'] ?></td>
-            <td><a href="?id=<?= $row['id'] ?>">Restock</a></td>
-        </tr>
-        <?php endwhile; ?>
-    </table>
-<?php endif; ?>
+if (isset($_POST['restock'])) {
+    $id_produk = (int)$_POST['id_produk'];
+    $jumlah = (int)$_POST['jumlah'];
+    $keterangan = trim($_POST['keterangan']);
+    $id_admin = (int)$_POST['id_admin'];
+    $tanggal = date('Y-m-d H:i:s');
+
+    if ($jumlah < 1) {
+        $_SESSION['error'] = "Jumlah restock harus lebih dari 0.";
+        header("Location: stok.php?id=$id_produk");
+        exit;
+    }
+
+    $conn->query("UPDATE produk SET stok = stok + $jumlah WHERE id = $id_produk");
+
+    $stmt = $conn->prepare("INSERT INTO restock (id_produk, jumlah, keterangan, id_admin, tanggal) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("iisis", $id_produk, $jumlah, $keterangan, $id_admin, $tanggal);
+    $stmt->execute();
+
+    $_SESSION['sukses'] = "Produk berhasil di-restock.";
+    header("Location: stok.php");
+    exit;
+}
