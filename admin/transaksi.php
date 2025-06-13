@@ -130,6 +130,9 @@ $produk_list = mysqli_query($conn, $keyword ?
 </head>
 <body class="p-4 bg-light">
 <div class="container-fluid">
+    <div class="mb-3">
+        <a href="dashboard.php" class="btn btn-warning w-25">KEMBALI</a>
+    </div>
     <div class="row">
         <!-- Kolom Produk -->
         <div class="col-lg-8">
@@ -148,8 +151,8 @@ $produk_list = mysqli_query($conn, $keyword ?
                             <input type="hidden" name="id_produk" value="<?= $p['id'] ?>">
                             <input type="hidden" name="jumlah" value="1">
                             <button type="submit" name="tambah_ke_keranjang" class="border-0 bg-transparent p-0 w-100 h-100">
-                                <div class="card h-100">
-                                    <img src="gambar_produk/<?= $p['gambar'] ?? 'default.jpg' ?>" class="card-img-top" alt="<?= htmlspecialchars($p['nama_produk']) ?>">
+                                <div class="card h-100 p-3">
+                                    <img src="../assets/<?= $p['gambar'] ?? 'default.jpg' ?>" class="card-img-top" alt="<?= htmlspecialchars($p['nama_produk']) ?>">
                                     <div class="card-body text-center">
                                         <h6 class="card-title"><?= htmlspecialchars($p['nama_produk']) ?></h6>
                                         <p class="text-primary fw-bold mb-0"><?= formatRupiah($p['harga']) ?></p>
@@ -172,7 +175,7 @@ $produk_list = mysqli_query($conn, $keyword ?
             <?php endif; ?>
 
             <div class="card mb-3">
-                <div class="card-header bg-primary text-white">🧺 Keranjang Belanja</div>
+                <div class="card-header bg-primary text-white">Keranjang Belanja</div>
                 <div class="card-body">
                     <?php if (!empty($_SESSION['cart'])): ?>
                         <table class="table table-sm">
