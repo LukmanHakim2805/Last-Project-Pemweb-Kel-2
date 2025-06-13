@@ -65,3 +65,35 @@ if (isset($_POST['restock'])) {
     header("Location: stok.php");
     exit;
 }
+
+if (isset($_GET['hapus'])) {
+    $id = (int)$_GET['hapus'];
+
+    // Cek di detail_transaksi
+    $res = $conn->query("SELECT COUNT(*) AS total FROM detail_transaksi WHERE id_produk = $id");
+    if ($res->fetch_assoc()['total'] > 0) {
+        $_SESSION['error'] = "Produk tidak bisa dihapus karena masih ada transaksi terkait.";
+        header("Location: stok.php");
+        exit;
+    }
+
+    $res = $conn->query("SELECT COUNT(*) AS total FROM restock WHERE id_produk = $id");
+    if ($res->fetch_assoc()['total'] > 0) {
+        $_SESSION['error'] = "Produk tidak bisa dihapus karena masih ada data restock terkait.";
+        header("Location: stok.php");
+        exit;
+    }
+
+    // Hapus foto dulu jika ada
+    $res = $conn->query("SELECT foto FROM produk WHERE id = $id");
+    $foto = $res->fetch_assoc()['foto'] ?? null;
+    if ($foto && file_exists($upload_dir . $foto)) {
+        unlink($upload_dir . $foto);
+    }
+
+    $conn->query("DELETE FROM produk WHERE id = $id");
+
+    $_SESSION['sukses'] = "Produk berhasil dihapus.";
+    header("Location: stok.php");
+    exit;
+}
