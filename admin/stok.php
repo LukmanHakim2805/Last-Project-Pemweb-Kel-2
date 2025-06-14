@@ -2,7 +2,7 @@
 session_start();
 include 'conn.php';
 
-$upload_dir = 'uploads/';
+$upload_dir = '../assets/';
 
 if (isset($_POST['tambah_produk'])) {
     $nama = trim($_POST['nama_produk']);
@@ -43,8 +43,9 @@ if (isset($_POST['tambah_produk'])) {
 if (isset($_POST['restock'])) {
     $id_produk = (int)$_POST['id_produk'];
     $jumlah = (int)$_POST['jumlah'];
+    $total_harga = (float)$_POST['total_harga'];
     $keterangan = trim($_POST['keterangan']);
-    $id_admin = (int)$_POST['id_admin'];
+    $id_admin = $_SESSION['id_admin'] ?? 1;
     $tanggal = date('Y-m-d H:i:s');
 
     if ($jumlah < 1) {
@@ -55,8 +56,8 @@ if (isset($_POST['restock'])) {
 
     $conn->query("UPDATE produk SET stok = stok + $jumlah WHERE id = $id_produk");
 
-    $stmt = $conn->prepare("INSERT INTO restock (id_produk, jumlah, keterangan, id_admin, tanggal) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("iisis", $id_produk, $jumlah, $keterangan, $id_admin, $tanggal);
+    $stmt = $conn->prepare("INSERT INTO restock (id_produk, jumlah, total_harga, tanggal, keterangan, id_admin) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("iisdsi", $id_produk, $jumlah, $total_harga, $tanggal, $keterangan, $id_admin);
     $stmt->execute();
 
     $_SESSION['sukses'] = "Produk berhasil di-restock.";
@@ -112,11 +113,44 @@ $kategori_result = $conn->query("SELECT * FROM kategori");
             max-height: 60px;
             object-fit: contain;
         }
+
+            .sidebar {
+      position: fixed;
+      height: 100%;
+      background-color: rgb(34, 53, 71);
+      padding: 25px 15px;
+    }
+
+    .sidebar .nav-link {
+      color: #adb5bd;
+      border-radius: 5px;
+    }
+
+    .sidebar .nav-link.active,
+    .sidebar .nav-link:hover {
+      background-color: rgb(95, 168, 241);
+      color: #fff;
+    }
     </style>
 </head>
-<body class="p-4 bg-light">
+<body class="bg-light">
 
-<div class="container">
+<div class="container-fluid">
+    <div class="row">
+    <!-- sidebar -->
+      <div class="col-md-2 sidebar">
+        <h4 class="text-white mb-4"> Dashboard Dasha</h4>
+        <hr style="color: white;">
+        <nav class="nav flex-column">
+          <a href="#" class="nav-link">Dashboard</a>
+          <a href="transaksi.php" class="nav-link">Transaksi</a>
+          <a href="stok.php" class="nav-link active">Manajemen Stok</a>
+          <a href="laporan.php" class="nav-link">Laporan Penjualan</a>
+          <a href="logout.php" class="nav-link text-danger mt-auto">Keluar</a>
+        </nav>
+      </div>
+
+    <div class="col-md-10 offset-md-2 p-4">
     <h1 class="mb-4">Manajemen Produk & Stok</h1>
 
     <?php if (isset($_SESSION['error'])): ?>
@@ -214,19 +248,20 @@ if (isset($_GET['id'])):
                     <input type="number" name="jumlah" min="1" class="form-control" required />
                 </div>
                 <div class="mb-3">
-                    <label>Keterangan (opsional)</label>
-                    <input type="text" name="keterangan" class="form-control" />
+                    <label>Total Biaya</label>
+                    <input type="number" name="total_harga" min="1" step="0.01" class="form-control" required />
                 </div>
                 <div class="mb-3">
-                    <label>ID Admin</label>
-                    <input type="number" name="id_admin" class="form-control" required />
+                    <label>Keterangan (opsional)</label>
+                    <input type="text" name="keterangan" class="form-control" />
                 </div>
                 <button type="submit" name="restock" class="btn btn-primary">Restock</button>
             </form>
         </div>
     </div>
 <?php endif; endif; ?>
-
+</div>
+</div>
 </div>
 
 </body>
