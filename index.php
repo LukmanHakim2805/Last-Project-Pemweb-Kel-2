@@ -162,7 +162,7 @@
       <div class="row">
         <div class="col-md-8 mb-4">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3349.1754100977296!2d112.78832469999999!3d-7.333721199999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7fab87edcad15%3A0xb26589947991eea1!2sUniversitas%20Pembangunan%20Nasional%20%22Veteran%22%20Jawa%20Timur!5e1!3m2!1sid!2sid!4v1747570116074!5m2!1sid!2sid"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3349.2253616285007!2d112.80366018147579!3d-7.327078470189006!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7fb0e7cbc9457%3A0xd7881c722aa4dc45!2sPawon%20Dasha!5e1!3m2!1sid!2sid!4v1749880462508!5m2!1sid!2sid"
             width="700" height="450" style="border:0;" allowfullscreen="" loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
@@ -170,9 +170,9 @@
           <h4 class="fs-3"><strong>Hubungi Kami!</strong></h4>
           <p class="fs-5">Silakan hubungi kami untuk pertanyaan, pemesanan produk, atau informasi mengenai layanan kami.
           </p>
-          <p><strong>Alamat:</strong> Cedake UPN No. XXX, Surabaya</p>
-          <p><strong>Jam Operasional:</strong> Senin – Minggu, 07.00 – 21.00 WIB</p>
-          <a href="https://wa.me/6281234567890" target="_blank" class="btn btn-success mt-3">
+          <p><strong>Alamat:</strong><span class="fs-6"> Jl. Tambak Medokan Ayu X No.20, Medokan Ayu, Kec. Rungkut, Surabaya, Jawa Timur 60295</span></p>
+          <p><strong>Jam Operasional:</strong><span class="fs-6"> Senin – Minggu, 07.00 – 21.00 WIB</span></p>
+          <a href="https://wa.me/6281234567890" target="_blank" class="btn btn-success mt-3 w-100">
             <img src="https://cdn-icons-png.flaticon.com/24/733/733585.png" alt="WhatsApp" class="me-2">
             Chat via WhatsApp
           </a>

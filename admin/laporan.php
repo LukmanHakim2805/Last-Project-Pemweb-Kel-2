@@ -149,9 +149,7 @@ $_SESSION['laporan_data'] = [
         </div>
         <input type="hidden" name="start" value="<?= $start ?>">
         <input type="hidden" name="end" value="<?= $end ?>">
-        <div class="col-auto">
-          <button type="submit" class="btn btn-primary">Cari</button>
-        </div>
+          <button type="submit" class="btn btn-primary w-auto px-5">Cari</button>
       </form>
       <table class="table table-striped w-100">
         <thead class="table-light">

@@ -131,7 +131,7 @@ $produk_list = mysqli_query($conn, $keyword ?
 <body class="p-4 bg-light">
 <div class="container-fluid">
     <div class="mb-3">
-        <a href="dashboard.php" class="btn btn-warning w-25">KEMBALI</a>
+        <a href="dashboard.php" class="btn btn-danger w-25">Kembali</a>
     </div>
     <div class="row">
         <!-- Kolom Produk -->
@@ -166,7 +166,7 @@ $produk_list = mysqli_query($conn, $keyword ?
         </div>
 
         <!-- Kolom Keranjang -->
-        <div class="col-lg-4">
+        <div class="col-lg-4 position-fixed" style="right: 0;">
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
             <?php endif; ?>
@@ -203,7 +203,7 @@ $produk_list = mysqli_query($conn, $keyword ?
 
                         <form method="POST">
                             <input type="number" name="pembayaran" class="form-control mb-2" min="<?= $total ?>" placeholder="Pembayaran" required />
-                            <button type="submit" name="simpan_transaksi" class="btn btn-success w-100">Bayar</button>
+                            <button type="submit" name="simpan_transaksi" class="btn btn-primary w-100">Bayar</button>
                         </form>
                     <?php else: ?>
                         <p class="text-muted">Keranjang kosong.</p>

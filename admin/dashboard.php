@@ -85,7 +85,6 @@ while ($row = mysqli_fetch_assoc($q_restock)) {
     }
 
     .welcome-banner {
-      background: rgb(53, 92, 128);
       color: white;
       border-radius: 0.5rem;
       padding: 1.5rem;
@@ -129,7 +128,7 @@ while ($row = mysqli_fetch_assoc($q_restock)) {
       <div class="col-md-10 offset-md-2 p-4">
 
         <!-- welcome banner -->
-        <div class="welcome-banner mb-4">
+        <div class="welcome-banner mb-4 bg-primary">
           <h4 class="mb-1">Selamat datang kembali, <em><?php echo $_SESSION['user']?></em></h4>
           <p class="mb-0">Kelola toko kelontong Anda dengan mudah dan cepat.</p>
         </div>
@@ -223,8 +222,7 @@ while ($row = mysqli_fetch_assoc($q_restock)) {
                   <h5 class="fw-bold">Lihat Laporan</h5>
                   <p class="text-muted">Monitor data penjualan dan lainnya dengan efektif.</p>
                 </div>
-                <a href="laporan.php" class="btn btn-lg mt-3 text-white fw-semibold"
-                  style="background-color: rgb(53, 92, 128)">Laporan</a>
+                <a href="laporan.php" class="btn btn-lg mt-3 text-white fw-semibold bg-primary">Laporan</a>
               </div>
             </div>
             <div class="col-md-6">
@@ -233,8 +231,7 @@ while ($row = mysqli_fetch_assoc($q_restock)) {
                   <h5 class="fw-bold">Mulai Transaksi</h5>
                   <p class="text-muted">Masuk ke mode kasir untuk mencatat penjualan.</p>
                 </div>
-                <a href="transaksi.php" class="btn btn-lg mt-3 text-white fw-semibold"
-                  style="background-color: rgb(53, 92, 128)">Mulai
+                <a href="transaksi.php" class="btn btn-lg mt-3 text-white fw-semibold bg-primary">Mulai
                   Transaksi</a>
               </div>
             </div>
