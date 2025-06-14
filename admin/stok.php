@@ -40,6 +40,35 @@ if (isset($_POST['tambah_produk'])) {
     exit;
 }
 
+if (isset($_POST['tambah_kategori'])) {
+    $nama_kategori = trim($_POST['nama_kategori']);
+
+    if (empty($nama_kategori)) {
+        $_SESSION['error'] = "Nama kategori tidak boleh kosong.";
+        header("Location: stok.php");
+        exit;
+    }
+
+    $check_kategori = $conn->query("SELECT id FROM kategori WHERE nama_kategori = '".$conn->real_escape_string($nama_kategori)."'");
+    if ($check_kategori->num_rows > 0) {
+        $_SESSION['error'] = "Nama kategori sudah ada.";
+        header("Location: stok.php");
+        exit;
+    }
+
+    $stmt_kategori = $conn->prepare("INSERT INTO kategori (nama_kategori) VALUES (?)");
+    $stmt_kategori->bind_param("s", $nama_kategori);
+    $stmt_kategori->execute();
+
+    if ($stmt_kategori->affected_rows > 0) {
+        $_SESSION['sukses'] = "Kategori baru berhasil ditambahkan.";
+    } else {
+        $_SESSION['error'] = "Gagal menambahkan kategori baru.";
+    }
+    header("Location: stok.php");
+    exit;
+}
+
 if (isset($_POST['restock'])) {
     $id_produk = (int)$_POST['id_produk'];
     $jumlah = (int)$_POST['jumlah'];
@@ -97,7 +126,7 @@ if (isset($_GET['hapus'])) {
 
 $result = $conn->query("SELECT produk.id, produk.nama_produk, produk.harga, produk.stok, produk.id_kategori, produk.gambar, kategori.nama_kategori FROM produk LEFT JOIN kategori ON produk.id_kategori = kategori.id ORDER BY produk.nama_produk");
 
-$kategori_result = $conn->query("SELECT * FROM kategori");
+$kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori");
 
 ?>
 
@@ -114,31 +143,30 @@ $kategori_result = $conn->query("SELECT * FROM kategori");
             object-fit: contain;
         }
 
-            .sidebar {
-      position: fixed;
-      height: 100%;
-      background-color: rgb(34, 53, 71);
-      padding: 25px 15px;
-    }
+        .sidebar {
+            position: fixed;
+            height: 100%;
+            background-color: rgb(34, 53, 71);
+            padding: 25px 15px;
+        }
 
-    .sidebar .nav-link {
-      color: #adb5bd;
-      border-radius: 5px;
-    }
+        .sidebar .nav-link {
+            color: #adb5bd;
+            border-radius: 5px;
+        }
 
-    .sidebar .nav-link.active,
-    .sidebar .nav-link:hover {
-      background-color: rgb(95, 168, 241);
-      color: #fff;
-    }
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            background-color: rgb(95, 168, 241);
+            color: #fff;
+        }
     </style>
 </head>
 <body class="bg-light">
 
 <div class="container-fluid">
     <div class="row">
-    <!-- sidebar -->
-      <div class="col-md-2 sidebar">
+    <div class="col-md-2 sidebar">
         <h4 class="text-white mb-4"> Dashboard Dasha</h4>
         <hr style="color: white;">
         <nav class="nav flex-column">
@@ -161,6 +189,18 @@ $kategori_result = $conn->query("SELECT * FROM kategori");
     <?php endif; ?>
 
     <div class="card mb-4">
+        <div class="card-header">Tambah Kategori Baru</div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="nama_kategori" class="form-label">Nama Kategori</label>
+                    <input type="text" class="form-control" id="nama_kategori" name="nama_kategori" required>
+                </div>
+                <button type="submit" name="tambah_kategori" class="btn btn-info">Tambah Kategori</button>
+            </form>
+        </div>
+    </div>
+    <div class="card mb-4">
         <div class="card-header">Tambah Produk Baru</div>
         <div class="card-body">
             <form method="POST" enctype="multipart/form-data">
@@ -172,7 +212,9 @@ $kategori_result = $conn->query("SELECT * FROM kategori");
                     <label>Kategori</label>
                     <select name="id_kategori" class="form-select" required>
                         <option value="" disabled selected>Pilih kategori</option>
-                        <?php while($kat = $kategori_result->fetch_assoc()): ?>
+                        <?php
+                        $kategori_result->data_seek(0);
+                        while($kat = $kategori_result->fetch_assoc()): ?>
                             <option value="<?= $kat['id'] ?>"><?= htmlspecialchars($kat['nama_kategori']) ?></option>
                         <?php endwhile; ?>
                     </select>
