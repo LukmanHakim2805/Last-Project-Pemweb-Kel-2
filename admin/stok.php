@@ -152,6 +152,23 @@ if (!empty($search)) {
 
 $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori");
 
+// ========================== LIMIT PER HALAMAN ==========================
+$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10; // Default limit
+$page = isset($_GET['page']) ? max((int)$_GET['page'], 1) : 1;
+$offset = ($page - 1) * $limit;
+
+$total_result = $conn->query("SELECT COUNT(*) AS total FROM produk");
+$total_data = $total_result->fetch_assoc()['total'] ?? 0;
+$total_page = ceil($total_data / $limit);
+
+$result = $conn->query("
+    SELECT produk.id, produk.nama_produk, produk.harga, produk.stok, produk.id_kategori, produk.gambar, kategori.nama_kategori 
+    FROM produk 
+    LEFT JOIN kategori ON produk.id_kategori = kategori.id 
+    ORDER BY produk.nama_produk 
+    LIMIT $limit OFFSET $offset
+");
+
 ?>
 
 <!DOCTYPE html>
@@ -213,6 +230,23 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                 <?php if (isset($_SESSION['sukses'])): ?>
                 <div class="alert alert-success"><?= $_SESSION['sukses']; unset($_SESSION['sukses']); ?></div>
                 <?php endif; ?>
+
+                <!-- Form untuk Mengatur Limit Pagination -->
+                <form method="get" class="mb-4">
+                    <div class="row">
+                        <div class="col-auto">
+                            <label for="limit" class="col-form-label">Limit per Halaman:</label>
+                        </div>
+                        <div class="col-auto">
+                            <select name="limit" id="limit" class="form-select" onchange="this.form.submit()">
+                                <option value="5" <?= $limit == 5 ? 'selected' : '' ?>>5</option>
+                                <option value="10" <?= $limit == 10 ? 'selected' : '' ?>>10</option>
+                                <option value="20" <?= $limit == 20 ? 'selected' : '' ?>>20</option>
+                                <option value="50" <?= $limit == 50 ? 'selected' : '' ?>>50</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
 
                 <!-- Tombol untuk Tambah Produk -->
                 <div class="d-flex text-center" style="height: 80px;">
@@ -374,6 +408,8 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                                             </div>
                                             <div class="mb-3">
                                                 <label>Total Biaya</label>
+                                                                                           <div class="mb-3">
+                                                <label>Total Biaya</label>
                                                 <input type="number" name="total_harga" min="1" step="0.01"
                                                     class="form-control" required />
                                             </div>
@@ -383,10 +419,8 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="submit" name="restock"
-                                                class="btn btn-primary">Restock</button>
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" name="restock" class="btn btn-primary">Restock</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                         </div>
                                     </form>
                                 </div>
@@ -399,7 +433,7 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
 
                 <!-- Navigasi Pagination -->
                 <?php
-                $limit = 10;
+                $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10; // Default limit
                 $page = isset($_GET['page']) ? max((int)$_GET['page'], 1) : 1;
                 $offset = ($page - 1) * $limit;
 
@@ -413,7 +447,7 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                     <ul class="pagination justify-content-center mt-4">
                         <?php if ($page > 1): ?>
                         <li class="page-item">
-                            <a class="page-link" href="?page=<?= $page - 1 ?>" aria-label="Sebelumnya">
+                            <a class="page-link" href="?page=<?= $page - 1 ?>&limit=<?= $limit ?>" aria-label="Sebelumnya">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
@@ -421,13 +455,13 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
 
                         <?php for ($i = 1; $i <= $total_page; $i++): ?>
                         <li class="page-item <?= $i === $page ? 'active' : '' ?>">
-                            <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                            <a class="page-link" href="?page=<?= $i ?>&limit=<?= $limit ?>"><?= $i ?></a>
                         </li>
                         <?php endfor; ?>
 
                         <?php if ($page < $total_page): ?>
                         <li class="page-item">
-                            <a class="page-link" href="?page=<?= $page + 1 ?>" aria-label="Berikutnya">
+                            <a class="page-link" href="?page=<?= $page + 1 ?>&limit=<?= $limit ?>" aria-label="Berikutnya">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
