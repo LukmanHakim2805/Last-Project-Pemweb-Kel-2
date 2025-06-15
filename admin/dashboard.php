@@ -309,7 +309,7 @@ while ($row = mysqli_fetch_assoc($q_restock)) {
                 </tbody>
               </table>
             </div>
-            <a href="stok.php" class="btn btn-sm btn-primary fs-5 fw-bold" style="height: 40px;">+ Restok Sekarang</a>
+            <a href="stok.php" class="btn btn-primary fs-5 fw-bold" style="height: 40px;">+ Restok Sekarang</a>
           </div>
         </div>
 

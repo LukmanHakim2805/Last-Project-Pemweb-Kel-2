@@ -146,6 +146,7 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8" />
     <title>Manajemen Produk & Stok - TOKO DASHA</title>
@@ -176,189 +177,222 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
         }
     </style>
 </head>
+
 <body class="bg-light">
 
-<div class="container-fluid">
-    <div class="row">
-    <div class="col-md-2 sidebar">
-        <h4 class="text-white mb-4"> Dashboard Dasha</h4>
-        <hr style="color: white;">
-        <nav class="nav flex-column">
-          <a href="dashboard.php" class="nav-link">Dashboard</a>
-          <a href="transaksi.php" class="nav-link">Transaksi</a>
-          <a href="#" class="nav-link active">Manajemen Stok</a>
-          <a href="laporan.php" class="nav-link">Laporan Penjualan</a>
-          <a href="logout.php" class="nav-link text-danger mt-auto">Keluar</a>
-        </nav>
-      </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 sidebar">
+                <h4 class="text-white mb-4"> Dashboard Dasha</h4>
+                <hr style="color: white;">
+                <nav class="nav flex-column">
+                    <a href="dashboard.php" class="nav-link">Dashboard</a>
+                    <a href="transaksi.php" class="nav-link">Transaksi</a>
+                    <a href="#" class="nav-link active">Manajemen Stok</a>
+                    <a href="laporan.php" class="nav-link">Laporan Penjualan</a>
+                    <a href="logout.php" class="nav-link text-danger mt-auto">Keluar</a>
+                </nav>
+            </div>
 
-    <div class="col-md-10 offset-md-2 p-4">
-    <h1 class="mb-4">Manajemen Produk & Stok</h1>
+            <div class="col-md-10 offset-md-2 p-4">
+                <h1 class="mb-4">Manajemen Produk & Stok</h1>
 
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
-    <?php endif; ?>
-    <?php if (isset($_SESSION['sukses'])): ?>
-        <div class="alert alert-success"><?= $_SESSION['sukses']; unset($_SESSION['sukses']); ?></div>
-    <?php endif; ?>
+                <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+                <?php endif; ?>
+                <?php if (isset($_SESSION['sukses'])): ?>
+                <div class="alert alert-success"><?= $_SESSION['sukses']; unset($_SESSION['sukses']); ?></div>
+                <?php endif; ?>
 
-    <!-- Tombol untuk Tambah Produk -->
-    <button class="btn btn-primary mb-3 me-2" data-bs-toggle="modal" data-bs-target="#modalTambahProduk">Tambah Produk Baru</button>
-        <!-- Modal Tambah Produk -->
-        <div class="modal fade" id="modalTambahProduk" tabindex="-1" aria-labelledby="modalTambahProdukLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-            <form method="POST" enctype="multipart/form-data">
-                <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahProdukLabel">Tambah Produk Baru</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                <!-- Tombol untuk Tambah Produk -->
+                <div class="d-flex text-center" style="height: 80px;">
+                    <button class="btn btn-primary m-3 w-50" data-bs-toggle="modal"
+                        data-bs-target="#modalTambahProduk">+ Tambah Produk Baru</button>
+                    <button class="btn btn-success m-3 w-50" data-bs-toggle="modal"
+                        data-bs-target="#modalTambahKategori">+ Tambah Kategori Baru</button>
                 </div>
-                <div class="modal-body">
-                <div class="mb-3">
-                    <label>Nama Produk</label>
-                    <input type="text" name="nama_produk" class="form-control" required />
-                </div>
-                <div class="mb-3">
-                    <label>Kategori</label>
-                    <select name="id_kategori" class="form-select" required>
-                    <option value="" disabled selected>Pilih kategori</option>
-                    <?php
+                <!-- Modal Tambah Produk -->
+                <div class="modal fade" id="modalTambahProduk" tabindex="-1" aria-labelledby="modalTambahProdukLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="POST" enctype="multipart/form-data">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalTambahProdukLabel">Tambah Produk Baru</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Tutup"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label>Nama Produk</label>
+                                        <input type="text" name="nama_produk" class="form-control" required />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>Kategori</label>
+                                        <select name="id_kategori" class="form-select" required>
+                                            <option value="" disabled selected>Pilih kategori</option>
+                                            <?php
                     $kategori_result->data_seek(0);
                     while($kat = $kategori_result->fetch_assoc()): ?>
-                        <option value="<?= $kat['id'] ?>"><?= htmlspecialchars($kat['nama_kategori']) ?></option>
-                    <?php endwhile; ?>
-                    </select>
+                                            <option value="<?= $kat['id'] ?>">
+                                                <?= htmlspecialchars($kat['nama_kategori']) ?></option>
+                                            <?php endwhile; ?>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>Harga</label>
+                                        <input type="number" step="0.01" name="harga" class="form-control" required />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>Stok Awal</label>
+                                        <input type="number" name="stok" class="form-control" min="0" required />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>Gambar Produk (jpg, png, gif)</label>
+                                        <input type="file" name="gambar" class="form-control"
+                                            accept=".jpg,.jpeg,.png,.gif" />
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" name="tambah_produk" class="btn btn-primary">Tambah
+                                        Produk</button>
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Batal</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label>Harga</label>
-                    <input type="number" step="0.01" name="harga" class="form-control" required />
+
+                <!-- Modal Tambah Kategori -->
+                <div class="modal fade" id="modalTambahKategori" tabindex="-1"
+                    aria-labelledby="modalTambahKategoriLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="POST">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalTambahKategoriLabel">Tambah Kategori Baru</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Tutup"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="nama_kategori" class="form-label">Nama Kategori</label>
+                                        <input type="text" class="form-control" id="nama_kategori" name="nama_kategori"
+                                            required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" name="tambah_kategori" class="btn btn-primary">Tambah
+                                        Kategori</button>
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Batal</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label>Stok Awal</label>
-                    <input type="number" name="stok" class="form-control" min="0" required />
-                </div>
-                <div class="mb-3">
-                    <label>Gambar Produk (jpg, png, gif)</label>
-                    <input type="file" name="gambar" class="form-control" accept=".jpg,.jpeg,.png,.gif" />
-                </div>
-                </div>
-                <div class="modal-footer">
-                <button type="submit" name="tambah_produk" class="btn btn-primary">Tambah Produk</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                </div>
-            </form>
+
+
+                <form method="get" class="row g-3 align-items-center mb-4 mt-2">
+                    <div class="col-auto text-end">
+                        <label for="search" class="col-form-label">Cari Produk:</label>
+                    </div>
+                    <div class="col-auto w-75">
+                        <input type="text" class="form-control" name="search" id="search" placeholder="Nama Produk"
+                            value="<?= htmlspecialchars($search) ?>">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-auto px-5">Cari</button>
+                </form>
+                <table class="table table-striped align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Gambar</th>
+                            <th>Nama Produk</th>
+                            <th>Kategori</th>
+                            <th>Harga</th>
+                            <th>Stok</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if ($result->num_rows === 0): ?>
+                        <tr>
+                            <td colspan="6" class="text-center">Belum ada produk.</td>
+                        </tr> <?php endif; ?>
+                        <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td class="text-center align-middle">
+                                <?php if ($row['gambar'] && file_exists($upload_dir . $row['gambar'])): ?>
+                                <img src="<?= $upload_dir . htmlspecialchars($row['gambar']) ?>" class="produk-gambar"
+                                    alt="Gambar <?= htmlspecialchars($row['nama_produk']) ?>" />
+                                <?php else: ?>
+                                <small><i>Tidak ada gambar</i></small>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= htmlspecialchars($row['nama_produk']) ?></td>
+                            <td><?= htmlspecialchars($row['nama_kategori']) ?></td>
+                            <td>Rp <?= number_format($row['harga'], 0, ',', '.') ?></td>
+                            <td><?= $row['stok'] ?></td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal"
+                                    data-bs-target="#modalRestock<?= $row['id'] ?>">Restock</a>
+                                <a href="?hapus=<?= $row['id'] ?>" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Hapus produk ini?')">Hapus</a>
+                            </td>
+                        </tr>
+                        <!-- Modal Restock -->
+                        <div class="modal fade" id="modalRestock<?= $row['id'] ?>" tabindex="-1"
+                            aria-labelledby="modalRestockLabel<?= $row['id'] ?>" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form method="POST">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalRestockLabel<?= $row['id'] ?>">Restock:
+                                                <?= htmlspecialchars($row['nama_produk']) ?></h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Tutup"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <input type="hidden" name="id_produk" value="<?= $row['id'] ?>" />
+                                            <div class="mb-3">
+                                                <label>Jumlah Tambah</label>
+                                                <input type="number" name="jumlah" min="1" class="form-control"
+                                                    required />
+                                            </div>
+                                            <div class="mb-3">
+                                                <label>Total Biaya</label>
+                                                <input type="number" name="total_harga" min="1" step="0.01"
+                                                    class="form-control" required />
+                                            </div>
+                                            <div class="mb-3">
+                                                <label>Keterangan (opsional)</label>
+                                                <input type="text" name="keterangan" class="form-control" />
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" name="restock"
+                                                class="btn btn-primary">Restock</button>
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Batal</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+
+
+
+
             </div>
         </div>
-        </div>
-
-
-
-    <!-- Tombol untuk Tambah Kategori -->
-    <button class="btn btn-secondary mb-3" data-bs-toggle="modal" data-bs-target="#modalTambahKategori">Tambah Kategori Baru</button>
-                        <!-- Modal Tambah Kategori -->
-<div class="modal fade" id="modalTambahKategori" tabindex="-1" aria-labelledby="modalTambahKategoriLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form method="POST">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalTambahKategoriLabel">Tambah Kategori Baru</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="nama_kategori" class="form-label">Nama Kategori</label>
-            <input type="text" class="form-control" id="nama_kategori" name="nama_kategori" required>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" name="tambah_kategori" class="btn btn-primary">Tambah Kategori</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        </div>
-      </form>
     </div>
-  </div>
-</div>
-
-    <form method="get" class="row g-3 align-items-center mb-3">
-        <div class="col-auto">
-          <label for="search" class="col-form-label">Cari Produk:</label>
-        </div>
-        <div class="col-auto w-75">
-          <input type="text" class="form-control" name="search" id="search" placeholder="Nama Produk" value="<?= htmlspecialchars($search) ?>">
-        </div>
-          <button type="submit" class="btn btn-primary w-auto px-5">Cari</button>
-      </form>
-
-    <h3>Daftar Produk</h3>
-    <table class="table table-bordered table-striped align-middle">
-        <thead class="table-primary">
-            <tr>
-                <th>Gambar</th>
-                <th>Nama Produk</th>
-                <th>Kategori</th>
-                <th>Harga</th>
-                <th>Stok</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if ($result->num_rows === 0): ?>
-                <tr><td colspan="6" class="text-center">Belum ada produk.</td></tr> <?php endif; ?>
-            <?php while ($row = $result->fetch_assoc()): ?>
-                <tr> <td class="text-center align-middle">
-                        <?php if ($row['gambar'] && file_exists($upload_dir . $row['gambar'])): ?>
-                            <img src="<?= $upload_dir . htmlspecialchars($row['gambar']) ?>" class="produk-gambar" alt="Gambar <?= htmlspecialchars($row['nama_produk']) ?>" />
-                        <?php else: ?>
-                            <small><i>Tidak ada gambar</i></small>
-                        <?php endif; ?>
-                    </td>
-                    <td><?= htmlspecialchars($row['nama_produk']) ?></td>
-                    <td><?= htmlspecialchars($row['nama_kategori']) ?></td>
-                    <td>Rp <?= number_format($row['harga'], 0, ',', '.') ?></td>
-                    <td><?= $row['stok'] ?></td>
-                    <td>
-                        <a href="?id=<?= $row['id'] ?>" class="btn btn-sm btn-success">Restock</a>
-                        <a href="?hapus=<?= $row['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Hapus produk ini?')" >Hapus</a>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
-
-<?php
-
-if (isset($_GET['id'])):
-    $id = (int)$_GET['id'];
-    $res = $conn->query("SELECT * FROM produk WHERE id = $id");
-    if ($res->num_rows):
-        $prod = $res->fetch_assoc();
-    ?>
-    <div class="card mt-5">
-        <div class="card-header">Restock Produk: <?= htmlspecialchars($prod['nama_produk']) ?></div>
-        <div class="card-body">
-            <form method="POST">
-                <input type="hidden" name="id_produk" value="<?= $prod['id'] ?>" />
-                <div class="mb-3">
-                    <label>Jumlah Tambah</label>
-                    <input type="number" name="jumlah" min="1" class="form-control" required />
-                </div>
-                <div class="mb-3">
-                    <label>Total Biaya</label>
-                    <input type="number" name="total_harga" min="1" step="0.01" class="form-control" required />
-                </div>
-                <div class="mb-3">
-                    <label>Keterangan (opsional)</label>
-                    <input type="text" name="keterangan" class="form-control" />
-                </div>
-                <button type="submit" name="restock" class="btn btn-primary">Restock</button>
-            </form>
-        </div>
-    </div>
-<?php endif; endif; ?>
-</div>
-</div>
-</div>
 
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </html>
