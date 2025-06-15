@@ -19,21 +19,32 @@ $total_transaction = mysqli_num_rows($q_total_transaction);
 
 
 // query untuk line chart
-$day_labels = [];
-$day_counts = [];
-$q_trans_per_day = mysqli_query($conn, "SELECT DAYNAME(tanggal) AS hari, COUNT(*) AS jumlah FROM transaksi WHERE tanggal >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DAYOFWEEK(tanggal)");
-while ($row = mysqli_fetch_assoc($q_trans_per_day)) {
-  $day_labels[] = $row['hari'];
-  $day_counts[] = (int)$row['jumlah'];
+// Query minggu ini
+$day_labels_this_week = [];
+$day_counts_this_week = [];
+
+$q_this_week = mysqli_query($conn, "SELECT DAYNAME(tanggal) AS hari, COUNT(*) AS jumlah 
+                                    FROM transaksi 
+                                    WHERE YEARWEEK(tanggal, 1) = YEARWEEK(CURDATE(), 1)
+                                    GROUP BY DAYOFWEEK(tanggal)");
+
+while ($row = mysqli_fetch_assoc($q_this_week)) {
+    $day_labels_this_week[] = $row['hari'];
+    $day_counts_this_week[] = (int)$row['jumlah'];
 }
 
-// query untuk pie chart
-$kategori_labels = [];
-$kategori_data = [];
-$q_kategori = mysqli_query($conn, "SELECT kategori.nama_kategori, COUNT(*) AS jumlah FROM produk JOIN kategori ON produk.id_kategori = kategori.id GROUP BY kategori.id");
-while ($row = mysqli_fetch_assoc($q_kategori)) {
-  $kategori_labels[] = $row['nama_kategori'];
-  $kategori_data[] = (int)$row['jumlah'];
+// Query minggu lalu
+$day_labels_last_week = [];
+$day_counts_last_week = [];
+
+$q_last_week = mysqli_query($conn, "SELECT DAYNAME(tanggal) AS hari, COUNT(*) AS jumlah 
+                                    FROM transaksi 
+                                    WHERE YEARWEEK(tanggal, 1) = YEARWEEK(CURDATE() - INTERVAL 7 DAY, 1)
+                                    GROUP BY DAYOFWEEK(tanggal)");
+
+while ($row = mysqli_fetch_assoc($q_last_week)) {
+    $day_labels_last_week[] = $row['hari'];
+    $day_counts_last_week[] = (int)$row['jumlah'];
 }
 
 // Cek nilai minimal stok dari input user atau default 10
@@ -78,11 +89,11 @@ while ($row = mysqli_fetch_assoc($q_restock)) {
       color: #fff;
     }
 
-    .section-header {
+    /* .section-header {
       font-size: 1.25rem;
       font-weight: 600;
       margin-bottom: 1rem;
-    }
+    } */
 
     .welcome-banner {
       color: white;
@@ -214,7 +225,6 @@ while ($row = mysqli_fetch_assoc($q_restock)) {
 
         <!-- akses cepat -->
         <div class="mt-4">
-          <div class="section-header">Akses Cepat</div>
           <div class="row g-3">
             <div class="col-md-6">
               <div class="card shadow-sm p-4 justify-content-between">
@@ -240,25 +250,14 @@ while ($row = mysqli_fetch_assoc($q_restock)) {
 
         <!-- grafik -->
         <div class="mt-5">
-          <div class="section-header">Statistik Visual</div>
           <div class="row">
             <!-- line chart transaksi -->
-            <div class="col-md-8 mb-4">
+            <div class="col-md-12 mb-4">
               <div class="card shadow-sm p-4" style="height: 400px;">
-                <h5 class="fw-bold mb-3">Transaksi Minggu Ini</h5>
+                <h5 class="fw-bold mb-3">Transaksi</h5>
                 <canvas id="dailyChart" height="300"></canvas>
               </div>
             </div>
-
-            <!-- pie chart kategori produk -->
-            <div class="col-md-4 mb-4">
-              <div class="card shadow-sm p-4" style="height: 400px;">
-                <h5 class="fw-bold mb-3">Proporsi Kategori Produk</h5>
-                <canvas id="pieChart" height="200"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- <div class="row">
             <div class="card shadow-sm p-4">
@@ -269,8 +268,8 @@ while ($row = mysqli_fetch_assoc($q_restock)) {
           </div> -->
 
         <div class="mt-3">
-          <div class="section-header">Produk Butuh Restok</div>
           <div class="card shadow-sm p-4">
+            <h4 class="mb-3">Produk Butuh Restok</h4>
             <form method="get" class="row g-3 align-items-center mb-3">
               <div class="col-auto">
                 <label for="min_stok" class="col-form-label">Stok Minimal:</label>
@@ -321,66 +320,50 @@ while ($row = mysqli_fetch_assoc($q_restock)) {
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // Dummy data transaksi per bulan
-    // const dailyLabels = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    // const dailyData = [12, 19, 7, 15, 20, 10];
+  
+  const labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const thisWeekData = [12, 19, 3, 5, 2, 3, 7];
+  const lastWeekData = [8, 14, 5, 2, 3, 7, 4];
 
-    const ctx1 = document.getElementById('dailyChart').getContext('2d');
-    const dailyChart = new Chart(ctx1, {
-      type: 'line',
-      data: {
-        labels: <?php echo json_encode($day_labels); ?>,
-        datasets: [{
-          label: 'Jumlah Transaksi',
-          data: <?php echo json_encode($day_counts); ?>,
-          backgroundColor: 'rgba(53, 92, 128, 0.7)',
-          borderColor: 'rgba(53, 92, 128, 1)',
-          borderWidth: 1,
-          borderRadius: 4
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              precision: 0
+const ctx1 = document.getElementById('dailyChart').getContext('2d');
+const dailyChart = new Chart(ctx1, {
+    type: 'line',
+    data: {
+        labels: labels<?php //echo json_encode($day_labels_this_week); ?>,
+        datasets: [
+            {
+                label: 'Minggu Ini',
+                // data: <?php //echo json_encode($day_counts_this_week); ?>,
+                data: thisWeekData,
+                backgroundColor: 'rgba(53, 92, 128, 0.7)',
+                borderColor: 'rgba(53, 92, 128, 1)',
+                borderWidth: 2,
+                tension: 0.1
+            },
+            {
+                label: 'Minggu Lalu',
+                //data: <?php //echo json_encode($day_counts_last_week); ?>,
+                data: lastWeekData,
+                backgroundColor: 'rgba(230, 126, 34, 0.7)',
+                borderColor: 'rgba(230, 126, 34, 1)',
+                borderWidth: 2,
+                tension: 0.1
             }
-          }
+        ]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
         }
-      }
-    });
+    }
+});
 
-    // Dummy data pie chart kategori produk
-    // const kategoriLabels = ['Makanan', 'Minuman', 'ATK', 'Lainnya'];
-    // const kategoriData = [40, 25, 20, 15];
 
-    const ctx2 = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctx2, {
-      type: 'pie',
-      data: {
-        labels: <?php echo json_encode($kategori_labels); ?>,
-        datasets: [{
-          data: <?php echo json_encode($kategori_data); ?>,
-          backgroundColor: [
-            'rgba(255, 0, 55, 0.8)',
-            'rgba(0, 255, 55, 0.8)',
-            'rgba(236, 169, 0, 0.8)',
-            'rgba(0, 64, 202, 0.8)'
-          ],
-          borderColor: '#fff',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'bottom'
-          }
-        }
-      }
-    });
   </script>
 
 </body>

@@ -124,7 +124,21 @@ if (isset($_GET['hapus'])) {
     exit;
 }
 
-$result = $conn->query("SELECT produk.id, produk.nama_produk, produk.harga, produk.stok, produk.id_kategori, produk.gambar, kategori.nama_kategori FROM produk LEFT JOIN kategori ON produk.id_kategori = kategori.id ORDER BY produk.nama_produk");
+$search = $_GET['search'] ?? '';
+if (!empty($search)) {
+    // Jika ada pencarian
+    $result = $conn->query("SELECT produk.id, produk.nama_produk, produk.harga, produk.stok, produk.id_kategori, produk.gambar, kategori.nama_kategori 
+                            FROM produk 
+                            LEFT JOIN kategori ON produk.id_kategori = kategori.id 
+                            WHERE produk.nama_produk LIKE '%" . $conn->real_escape_string($search) . "%' 
+                            ORDER BY produk.nama_produk");
+} else {
+    // Jika tidak ada pencarian
+    $result = $conn->query("SELECT produk.id, produk.nama_produk, produk.harga, produk.stok, produk.id_kategori, produk.gambar, kategori.nama_kategori 
+                            FROM produk 
+                            LEFT JOIN kategori ON produk.id_kategori = kategori.id 
+                            ORDER BY produk.nama_produk");
+}
 
 $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori");
 
@@ -170,9 +184,9 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
         <h4 class="text-white mb-4"> Dashboard Dasha</h4>
         <hr style="color: white;">
         <nav class="nav flex-column">
-          <a href="#" class="nav-link">Dashboard</a>
+          <a href="dashboard.php" class="nav-link">Dashboard</a>
           <a href="transaksi.php" class="nav-link">Transaksi</a>
-          <a href="stok.php" class="nav-link active">Manajemen Stok</a>
+          <a href="#" class="nav-link active">Manajemen Stok</a>
           <a href="laporan.php" class="nav-link">Laporan Penjualan</a>
           <a href="logout.php" class="nav-link text-danger mt-auto">Keluar</a>
         </nav>
@@ -188,22 +202,18 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
         <div class="alert alert-success"><?= $_SESSION['sukses']; unset($_SESSION['sukses']); ?></div>
     <?php endif; ?>
 
-    <div class="card mb-4">
-        <div class="card-header">Tambah Kategori Baru</div>
-        <div class="card-body">
-            <form method="POST">
-                <div class="mb-3">
-                    <label for="nama_kategori" class="form-label">Nama Kategori</label>
-                    <input type="text" class="form-control" id="nama_kategori" name="nama_kategori" required>
-                </div>
-                <button type="submit" name="tambah_kategori" class="btn btn-info">Tambah Kategori</button>
-            </form>
-        </div>
-    </div>
-    <div class="card mb-4">
-        <div class="card-header">Tambah Produk Baru</div>
-        <div class="card-body">
+    <!-- Tombol untuk Tambah Produk -->
+    <button class="btn btn-primary mb-3 me-2" data-bs-toggle="modal" data-bs-target="#modalTambahProduk">Tambah Produk Baru</button>
+        <!-- Modal Tambah Produk -->
+        <div class="modal fade" id="modalTambahProduk" tabindex="-1" aria-labelledby="modalTambahProdukLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
             <form method="POST" enctype="multipart/form-data">
+                <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahProdukLabel">Tambah Produk Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
                 <div class="mb-3">
                     <label>Nama Produk</label>
                     <input type="text" name="nama_produk" class="form-control" required />
@@ -211,12 +221,12 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                 <div class="mb-3">
                     <label>Kategori</label>
                     <select name="id_kategori" class="form-select" required>
-                        <option value="" disabled selected>Pilih kategori</option>
-                        <?php
-                        $kategori_result->data_seek(0);
-                        while($kat = $kategori_result->fetch_assoc()): ?>
-                            <option value="<?= $kat['id'] ?>"><?= htmlspecialchars($kat['nama_kategori']) ?></option>
-                        <?php endwhile; ?>
+                    <option value="" disabled selected>Pilih kategori</option>
+                    <?php
+                    $kategori_result->data_seek(0);
+                    while($kat = $kategori_result->fetch_assoc()): ?>
+                        <option value="<?= $kat['id'] ?>"><?= htmlspecialchars($kat['nama_kategori']) ?></option>
+                    <?php endwhile; ?>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -231,10 +241,53 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                     <label>Gambar Produk (jpg, png, gif)</label>
                     <input type="file" name="gambar" class="form-control" accept=".jpg,.jpeg,.png,.gif" />
                 </div>
+                </div>
+                <div class="modal-footer">
                 <button type="submit" name="tambah_produk" class="btn btn-primary">Tambah Produk</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                </div>
             </form>
+            </div>
         </div>
+        </div>
+
+
+
+    <!-- Tombol untuk Tambah Kategori -->
+    <button class="btn btn-secondary mb-3" data-bs-toggle="modal" data-bs-target="#modalTambahKategori">Tambah Kategori Baru</button>
+                        <!-- Modal Tambah Kategori -->
+<div class="modal fade" id="modalTambahKategori" tabindex="-1" aria-labelledby="modalTambahKategoriLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTambahKategoriLabel">Tambah Kategori Baru</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="nama_kategori" class="form-label">Nama Kategori</label>
+            <input type="text" class="form-control" id="nama_kategori" name="nama_kategori" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" name="tambah_kategori" class="btn btn-primary">Tambah Kategori</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        </div>
+      </form>
     </div>
+  </div>
+</div>
+
+    <form method="get" class="row g-3 align-items-center mb-3">
+        <div class="col-auto">
+          <label for="search" class="col-form-label">Cari Produk:</label>
+        </div>
+        <div class="col-auto w-75">
+          <input type="text" class="form-control" name="search" id="search" placeholder="Nama Produk" value="<?= htmlspecialchars($search) ?>">
+        </div>
+          <button type="submit" class="btn btn-primary w-auto px-5">Cari</button>
+      </form>
 
     <h3>Daftar Produk</h3>
     <table class="table table-bordered table-striped align-middle">
@@ -252,7 +305,7 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
             <?php if ($result->num_rows === 0): ?>
                 <tr><td colspan="6" class="text-center">Belum ada produk.</td></tr> <?php endif; ?>
             <?php while ($row = $result->fetch_assoc()): ?>
-                <tr> <td>
+                <tr> <td class="text-center align-middle">
                         <?php if ($row['gambar'] && file_exists($upload_dir . $row['gambar'])): ?>
                             <img src="<?= $upload_dir . htmlspecialchars($row['gambar']) ?>" class="produk-gambar" alt="Gambar <?= htmlspecialchars($row['nama_produk']) ?>" />
                         <?php else: ?>
@@ -307,4 +360,5 @@ if (isset($_GET['id'])):
 </div>
 
 </body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </html>

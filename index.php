@@ -40,7 +40,7 @@
   }
 
   #beranda {
-    background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7)), url('assets/welcome.jpg') center/cover no-repeat;
+    background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7)), url('assets/gmbr1.jpg') center/cover no-repeat;
     color: white;
   }
 </style>
@@ -83,7 +83,7 @@
           <p class="fs-6">Jam Operasional:<br>Senin – Minggu, 07.00 – 21.00 WIB</p>
         </div>
         <div class="col-md-6 text-center">
-          <img src="assets/welcome.jpg" alt="Welcome" class="img-fluid rounded">
+          <img src="assets/gmbr2.jpg" alt="Welcome" class="img-fluid rounded">
         </div>
       </div>
     </div>
@@ -92,11 +92,11 @@
   <!-- Produk Section -->
   <section id="produk" class="py-5" style="background: #fabd42">
     <div class="container">
-      <h1 class="text-center mb-4 text-black">Produk Kami</h1>
+      <h1 class="text-center text-black">Produk Kami</h1>
 
-      <div class="row mb-5 align-items-center">
+      <div class="row align-items-center">
         <div class="col-md-4">
-          <img src="assets/welcome.jpg" alt="Produk 1" class="img-fluid rounded mb-3">
+          <img src="assets/gmbr-sembako.png" alt="Produk 1" class="img-fluid rounded">
         </div>
         <div class="col-md-8">
           <h2>Sembako</h2>
@@ -104,15 +104,15 @@
             produk sembako lainnya dengan harga terjangkau dan kualitas terbaik.</p>
         </div>
       </div>
-
-      <div class="row mb-4 align-items-center">
+      <hr class="mb-5" style="height: 1px; border: 0; background-color: black; opacity: 1;">
+      <div class="row align-items-center">
         <div class="col-md-8">
           <h2>Gas Elpiji & Air Galon</h2>
           <p class="fs-5">Tersedia Gas LPG 3kg dan 12kg serta air galon isi ulang. Layanan antar tersedia untuk
             mempermudah Anda memenuhi kebutuhan rumah tangga.</p>
         </div>
         <div class="col-md-4">
-          <img src="assets/welcome.jpg" alt="Produk 2" class="img-fluid rounded mb-3">
+          <img src="assets/gmbr-galon.png" alt="Produk 2" class="img-fluid rounded" style="width: 80%;">
         </div>
       </div>
     </div>
@@ -125,30 +125,30 @@
       <h1 class="text-center mb-4 text-black">Galeri</h1>
       <div class="row mb-4">
         <div class="col-md-4 mb-4">
-          <div class="card">
-            <img src="assets/welcome.jpg" class="card-img-top border border-3 border-dark" alt="Galeri 1">
+          <div class="card border border-3 border-dark" style="max-width: 350px; max-height:270px; overflow: hidden;">
+            <img src="assets/gmbr1.jpg" alt="Galeri 1">
           </div>
         </div>
         <div class="col-md-4 mb-4">
-          <div class="card">
-            <img src="assets/welcome.jpg" class="card-img-top border border-3 border-dark" alt="Galeri 2">
+          <div class="card border border-3 border-dark" style="max-width: 350px; max-height:270px; overflow: hidden;">
+            <img src="assets/gmbr2.jpg" alt="Galeri 2">
           </div>
         </div>
         <div class="col-md-4 mb-4">
-          <div class="card">
-            <img src="assets/welcome.jpg" class="card-img-top border border-3 border-dark" alt="Galeri 3">
+          <div class="card border border-3 border-dark" style="max-width: 350px; max-height:270px; overflow: hidden;">
+            <img src="assets/gmbr3.jpg" style="width: 100%; height: 100%;" alt="Galeri 3">
           </div>
         </div>
       </div>
       <div class="row">
-        <div class="col-md-6 mb-4">
-          <div class="card">
-            <img src="assets/welcome.jpg" class="card-img-top border border-3 border-dark" alt="Galeri 4">
+        <div class="col-md-6 mb-4 justify-content-center d-flex">
+          <div class="card border border-3 border-dark" style="max-width: 500px; max-height:270px; overflow: hidden;">
+            <img src="assets/gmbr2.jpg" alt="Galeri 4">
           </div>
         </div>
-        <div class="col-md-6 mb-4">
-          <div class="card">
-            <img src="assets/welcome.jpg" class="card-img-top border border-3 border-dark" alt="Galeri 5">
+        <div class="col-md-6 mb-4 justify-content-center d-flex">
+          <div class="card border border-3 border-dark" style="max-width: 500px; max-height:270px; overflow: hidden;">
+            <img src="assets/gmbr1.jpg" alt="Galeri 5">
           </div>
         </div>
       </div>

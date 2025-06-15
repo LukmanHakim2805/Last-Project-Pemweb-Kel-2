@@ -67,8 +67,8 @@ session_start();
   </div>
 
   <div class="container d-flex align-items-center justify-content-center vh-100">
-    <div class="card p-4 shadow" style="max-width: 400px; width: 100%;">
-      <h3 class="text-center mb-4">Masuk <br> Dashboard Admin</h3>
+    <div class="card p-3 shadow" style="max-width: 400px; width: 100%;">
+      <h3 class="text-center mb-2">Masuk <br> Dashboard Admin</h3>
       <form action="" method="post">
         <div class="mb-3">
           <label for="email" class="form-label">Username</label>
@@ -79,14 +79,7 @@ session_start();
           <input type="password" class="form-control" id="password" name="password" placeholder="Enter password"
             required>
         </div>
-        <div class="mb-3 form-check">
-          <input type="checkbox" class="form-check-input" id="remember">
-          <label class="form-check-label" for="remember">Remember me</label>
-        </div>
         <button type="submit" name="login" class="btn btn-primary w-100">Login</button>
-        <p class="mt-3 text-center">
-          <a href="#">Lupa password?</a>
-        </p>
       </form>
     </div>
   </div>

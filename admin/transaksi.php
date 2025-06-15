@@ -128,7 +128,7 @@ $produk_list = mysqli_query($conn, $keyword ?
         .card img { height: 120px; object-fit: contain; }
     </style>
 </head>
-<body class="p-4 bg-light">
+<body class="p-4 bg-light" style="min-height: 3000px;">
 <div class="container-fluid">
     <div class="mb-3">
         <a href="dashboard.php" class="btn btn-danger w-25">Kembali</a>
@@ -144,7 +144,7 @@ $produk_list = mysqli_query($conn, $keyword ?
             </form>
 
             <h3 class="mb-4">Pilih Produk</h3>
-            <div class="row row-cols-2 row-cols-md-3 g-3">
+            <div class="row row-cols-2 row-cols-md-3 g-3 p-3 border border-1 border-dark-subtle">
                 <?php while ($p = mysqli_fetch_assoc($produk_list)): ?>
                     <div class="col">
                         <form method="POST">
@@ -203,7 +203,7 @@ $produk_list = mysqli_query($conn, $keyword ?
 
                         <form method="POST">
                             <input type="number" name="pembayaran" class="form-control mb-2" min="<?= $total ?>" placeholder="Pembayaran" required />
-                            <button type="submit" name="simpan_transaksi" class="btn btn-primary w-100">Bayar</button>
+                            <button type="submit" name="simpan_transaksi" class="btn bg-success text-white w-100">Bayar</button>
                         </form>
                     <?php else: ?>
                         <p class="text-muted">Keranjang kosong.</p>
