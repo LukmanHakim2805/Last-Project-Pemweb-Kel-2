@@ -4,6 +4,7 @@ include 'conn.php';
 
 $upload_dir = '../assets/';
 
+// ========================== TAMBAH PRODUK ==========================
 if (isset($_POST['tambah_produk'])) {
     $nama = trim($_POST['nama_produk']);
     $harga = (float)$_POST['harga'];
@@ -13,17 +14,19 @@ if (isset($_POST['tambah_produk'])) {
     $gambar = null;
     if (!empty($_FILES['gambar']['name'])) {
         $ext = strtolower(pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION));
-        $allowed = ['jpg','jpeg','png','gif'];
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+
         if (in_array($ext, $allowed)) {
             $gambar = uniqid() . '.' . $ext;
             move_uploaded_file($_FILES['gambar']['tmp_name'], $upload_dir . $gambar);
         } else {
-            $_SESSION['error'] = "Format gambar tidak didukung. Gunakan JPG, PNG, GIF.";
+            $_SESSION['error'] = "Format gambar tidak didukung. Gunakan JPG, PNG, atau GIF.";
             header("Location: stok.php");
             exit;
         }
     }
 
+    // Cek duplikasi nama produk
     $check = $conn->query("SELECT id FROM produk WHERE nama_produk = '".$conn->real_escape_string($nama)."'");
     if ($check->num_rows > 0) {
         $_SESSION['error'] = "Nama produk sudah ada.";
@@ -31,6 +34,7 @@ if (isset($_POST['tambah_produk'])) {
         exit;
     }
 
+    // Simpan produk baru
     $stmt = $conn->prepare("INSERT INTO produk (nama_produk, harga, stok, id_kategori, gambar) VALUES (?, ?, ?, ?, ?)");
     $stmt->bind_param("sdiis", $nama, $harga, $stok, $id_kategori, $gambar);
     $stmt->execute();
@@ -40,6 +44,7 @@ if (isset($_POST['tambah_produk'])) {
     exit;
 }
 
+// ========================== TAMBAH KATEGORI ==========================
 if (isset($_POST['tambah_kategori'])) {
     $nama_kategori = trim($_POST['nama_kategori']);
 
@@ -69,6 +74,7 @@ if (isset($_POST['tambah_kategori'])) {
     exit;
 }
 
+// ========================== RESTOCK ==========================
 if (isset($_POST['restock'])) {
     $id_produk = (int)$_POST['id_produk'];
     $jumlah = (int)$_POST['jumlah'];
@@ -83,8 +89,10 @@ if (isset($_POST['restock'])) {
         exit;
     }
 
+    // Tambah stok
     $conn->query("UPDATE produk SET stok = stok + $jumlah WHERE id = $id_produk");
 
+    // Catat restock
     $stmt = $conn->prepare("INSERT INTO restock (id_produk, jumlah, total_harga, tanggal, keterangan, id_admin) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("iisdsi", $id_produk, $jumlah, $total_harga, $tanggal, $keterangan, $id_admin);
     $stmt->execute();
@@ -94,6 +102,7 @@ if (isset($_POST['restock'])) {
     exit;
 }
 
+// ========================== HAPUS PRODUK ==========================
 if (isset($_GET['hapus'])) {
     $id = (int)$_GET['hapus'];
 
@@ -124,6 +133,7 @@ if (isset($_GET['hapus'])) {
     exit;
 }
 
+// ========================== PENCARIAN ==========================
 $search = $_GET['search'] ?? '';
 if (!empty($search)) {
     // Jika ada pencarian
@@ -188,7 +198,7 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                 <nav class="nav flex-column">
                     <a href="dashboard.php" class="nav-link">Dashboard</a>
                     <a href="transaksi.php" class="nav-link">Transaksi</a>
-                    <a href="#" class="nav-link active">Manajemen Stok</a>
+                    <a href="stok.php" class="nav-link active">Manajemen Stok</a>
                     <a href="laporan.php" class="nav-link">Laporan Penjualan</a>
                     <a href="logout.php" class="nav-link text-danger mt-auto">Keluar</a>
                 </nav>
@@ -211,6 +221,7 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                     <button class="btn btn-success m-3 w-50" data-bs-toggle="modal"
                         data-bs-target="#modalTambahKategori">+ Tambah Kategori Baru</button>
                 </div>
+
                 <!-- Modal Tambah Produk -->
                 <div class="modal fade" id="modalTambahProduk" tabindex="-1" aria-labelledby="modalTambahProdukLabel"
                     aria-hidden="true">
@@ -293,7 +304,6 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                     </div>
                 </div>
 
-
                 <form method="get" class="row g-3 align-items-center mb-4 mt-2">
                     <div class="col-auto text-end">
                         <label for="search" class="col-form-label">Cari Produk:</label>
@@ -304,6 +314,7 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                     </div>
                     <button type="submit" class="btn btn-primary w-auto px-5">Cari</button>
                 </form>
+
                 <table class="table table-striped align-middle">
                     <thead class="table-light">
                         <tr>
@@ -319,7 +330,8 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                         <?php if ($result->num_rows === 0): ?>
                         <tr>
                             <td colspan="6" class="text-center">Belum ada produk.</td>
-                        </tr> <?php endif; ?>
+                        </tr>
+                        <?php endif; ?>
                         <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
                             <td class="text-center align-middle">
@@ -385,8 +397,44 @@ $kategori_result = $conn->query("SELECT * FROM kategori ORDER BY nama_kategori")
                     </tbody>
                 </table>
 
+                <!-- Navigasi Pagination -->
+                <?php
+                $limit = 10;
+                $page = isset($_GET['page']) ? max((int)$_GET['page'], 1) : 1;
+                $offset = ($page - 1) * $limit;
 
+                $total_result = $conn->query("SELECT COUNT(*) AS total FROM produk");
+                $total_data = $total_result->fetch_assoc()['total'] ?? 0;
+                $total_page = ceil($total_data / $limit);
+                ?>
 
+                <?php if ($total_page > 1): ?>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mt-4">
+                        <?php if ($page > 1): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<?= $page - 1 ?>" aria-label="Sebelumnya">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <?php endif; ?>
+
+                        <?php for ($i = 1; $i <= $total_page; $i++): ?>
+                        <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                            <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                        </li>
+                        <?php endfor; ?>
+
+                        <?php if ($page < $total_page): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<?= $page + 1 ?>" aria-label="Berikutnya">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
+                </nav>
+                <?php endif; ?>
 
             </div>
         </div>
